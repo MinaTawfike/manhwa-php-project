@@ -1,0 +1,21 @@
+[33mcommit 85096622af679a634206afa10a1f932d6123faa2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: MinaTawfike <mina.tawfikk6@gmail.comgit>
+Date:   Mon Jan 19 18:12:22 2026 +0200
+
+    Initial commit with all project files2
+
+[1mdiff --git a/suggestions.md b/suggestions.md[m
+[1mindex f9ad120..862d476 100644[m
+[1m--- a/suggestions.md[m
+[1m+++ b/suggestions.md[m
+[36m@@ -167,3 +167,10 @@[m
+ [m
+ Add Context[m
+ ⏎ Send[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m321321[m
