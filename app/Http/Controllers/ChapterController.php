@@ -53,7 +53,7 @@ class ChapterController extends Controller
             $files = $request->file('images', []);
             $page = 1;
 
-            foreach ($$request->file('images', []) as $file) {
+            foreach ($files as $file) {
                 // Store under public disk: storage/app/public/chapter_pages/{chapter_id}/
                 $path = $file->store("chapter_pages/{$chapter->id}", 'public');
 
@@ -66,7 +66,7 @@ class ChapterController extends Controller
             }
 
             return redirect()
-                ->route('chapters.show', $chapter)
+                ->route('chapters.show', [$chapter->comic, $chapter])
                 ->with('status', 'Chapter created successfully.');
         });
     }
@@ -155,7 +155,7 @@ class ChapterController extends Controller
         });
 
         return redirect()
-            ->route('chapters.edit', $chapter)
+            ->route('chapters.edit', [$chapter->comic, $chapter])
             ->with('status', 'Chapter updated successfully.');
 
     }

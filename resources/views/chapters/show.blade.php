@@ -61,8 +61,8 @@
                     /* Approach: Use a wrapper with overflow hidden; image object-position top */
                     width: 100%;
                     max-width: 900px; /* optional max width */
-                    overflow: hidden;
-                    margin: 0 auto 16px auto;
+                    /*overflow: hidden;*/
+                    margin: 0 auto 0px auto;
                 }
                 .page-top-50 img {
                     width: 100%;
@@ -74,7 +74,7 @@
                 }
                 /* You can adjust the ratio below to change how much is visible (50% by default) */
                 .page-top-50 {
-                    aspect-ratio: 2 / 1; /* This is a proxy for 50% height; tweak as needed */
+                    aspect-ratio: 0.769 / 1; /* This is a proxy for 50% height; tweak as needed */
                 }
                 /* Alternative: fixed height relative to viewport
                 .page-top-50 { height: 50vh; } img { height: 100%; } */
