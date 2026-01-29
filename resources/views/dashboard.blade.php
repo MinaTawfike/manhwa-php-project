@@ -12,7 +12,7 @@
                     {{ __("You're logged in!") }}
 
 
-                    <?php phpinfo(); ?>
+                    
 
                 </div>
             </div>

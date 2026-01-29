@@ -53,39 +53,77 @@
             </div>
         @endauth
 
-        <div class="pages-container">
-            <!-- CSS to visually show only top 50% of images (easy to tweak later) -->
+        <div class="pages-container" style="--image-crop-ratio: 0.5;">
             <style>
-                .page-top-50 {
-                    /* Constrain height to 50% of intrinsic height via container; we emulate by fixed aspect cropping */
-                    /* Approach: Use a wrapper with overflow hidden; image object-position top */
-                    width: 100%;
-                    max-width: 900px; /* optional max width */
-                    /*overflow: hidden;*/
-                    margin: 0 auto 0px auto;
+                .pages-container {
+                    /* Change --image-crop-ratio to adjust visible portion (0.5 = 50%) */
+                    --image-crop-ratio: 0.5;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0; /* remove spacing between pages */
+                    align-items: center;
                 }
-                .page-top-50 img {
+
+                .page-image-crop {
                     width: 100%;
-                    /* Show the top part of the image */
-                    object-fit: cover;     /* cover fills width, crop excess */
-                    object-position: top;  /* crop from bottom, keep top */
-                    /* The container height will effectively define "how much" to show */
+                    max-width: 700px; /* optional max width for larger screens */
+                    margin: 0; /* remove margin to eliminate gaps */
+                    overflow: hidden;
+                    background-color: #2a2a2a;
+                }
+
+                .page-image-crop img {
+                    width: 100%;
+                    /* Let JS compute the container height based on image's natural size
+                       so the visible percentage is consistent across different widths. */
+                    object-fit: cover;
+                    object-position: top;
                     display: block;
                 }
-                /* You can adjust the ratio below to change how much is visible (50% by default) */
-                .page-top-50 {
-                    aspect-ratio: 0.769 / 1; /* This is a proxy for 50% height; tweak as needed */
-                }
-                /* Alternative: fixed height relative to viewport
-                .page-top-50 { height: 50vh; } img { height: 100%; } */
             </style>
 
             @foreach ($chapter->images as $img)
-                <div class="page-top-50">
-                    <img src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->alt ?? 'Page '.$img->page_number }}">
+                <div class="page-image-crop">
+                    <img loading="lazy" src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->alt ?? 'Page '.$img->page_number }}">
                 </div>
             @endforeach
-         </div>
+        </div>
+
+        <script>
+            (function(){
+                const container = document.querySelector('.pages-container');
+                const cssRatio = getComputedStyle(container).getPropertyValue('--image-crop-ratio').trim();
+                const cropRatio = parseFloat(cssRatio) || 0.5;
+
+                function setCropForImage(img){
+                    const parent = img.closest('.page-image-crop');
+                    if(!parent) return;
+                    const renderedWidth = img.clientWidth || img.width;
+                    const naturalWidth = img.naturalWidth || renderedWidth;
+                    const naturalHeight = img.naturalHeight || (renderedWidth * 1.5);
+                    const renderedHeight = (renderedWidth / naturalWidth) * naturalHeight;
+                    const visibleHeight = renderedHeight * cropRatio;
+                    parent.style.height = visibleHeight + 'px';
+                }
+
+                function updateAll(){
+                    document.querySelectorAll('.page-image-crop img').forEach(img => {
+                        if(img.complete){
+                            setCropForImage(img);
+                        } else {
+                            img.addEventListener('load', function onload(){
+                                img.removeEventListener('load', onload);
+                                setCropForImage(img);
+                            });
+                        }
+                    });
+                }
+
+                window.addEventListener('resize', () => requestAnimationFrame(updateAll));
+                document.addEventListener('DOMContentLoaded', updateAll);
+                updateAll();
+            })();
+        </script>
         @auth
             <div style="background-color: #3a3a3a; padding: 2rem; border-radius: 8px; margin-top: 2rem;">
                 <h3 style="color: #ff6b6b; margin-bottom: 1rem;">Comment on this Chapter</h3>
