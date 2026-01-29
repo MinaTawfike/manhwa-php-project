@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Manhwa reader: crop top portion of pages */
+.pages-container {
+	--image-crop-ratio: 0.5; /* default: 50% */
+	display: flex;
+	flex-direction: column;
+	gap: 0px;
+	align-items: center;
+}
+
+.page-image-crop {
+	width: 100%;
+	max-width: 900px;
+	margin: -16px 0px;
+	overflow: hidden;
+	background-color: #2a2a2a;
+}
+
+.page-image-crop img {
+	width: 100%;
+	object-fit: cover;
+	object-position: top;
+	display: block;
+}
+

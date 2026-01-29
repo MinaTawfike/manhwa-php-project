@@ -11,6 +11,7 @@
                     @if($chapter->name) - {{ $chapter->name }} @endif
                 </p>
             </div>
+            
             @auth
                 <div style="display: flex; gap: 0.5rem;">
                     <a href="{{ route('chapters.edit', [$comic, $chapter]) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Edit</a>
@@ -23,6 +24,21 @@
             @endauth
         </div>
 
+
+        {{-- Prev/Next buttons (top) --}}
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                @php
+                    $prevChapter = $comic->chapters()->where('number', '<', $chapter->number)->orderBy('number', 'desc')->first();
+                    $nextChapter = $comic->chapters()->where('number', '>', $chapter->number)->orderBy('number', 'asc')->first();
+                @endphp
+                @if($prevChapter)
+                    <a href="{{ route('chapters.show', [$comic, $prevChapter]) }}" class="btn btn-secondary">← Prev</a>
+                @endif
+                @if($nextChapter)
+                    <a href="{{ route('chapters.show', [$comic, $nextChapter]) }}" class="btn btn-secondary">Next →</a>
+                @endif
+            </div>
+            
         @auth
             <div class="actions">
                 <form action="{{ route('chapters.bookmark', $chapter) }}" method="POST">
@@ -53,35 +69,7 @@
             </div>
         @endauth
 
-        <div class="pages-container" style="--image-crop-ratio: 0.5;">
-            <style>
-                .pages-container {
-                    /* Change --image-crop-ratio to adjust visible portion (0.5 = 50%) */
-                    --image-crop-ratio: 0.5;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0; /* remove spacing between pages */
-                    align-items: center;
-                }
-
-                .page-image-crop {
-                    width: 100%;
-                    max-width: 700px; /* optional max width for larger screens */
-                    margin: 0; /* remove margin to eliminate gaps */
-                    overflow: hidden;
-                    background-color: #2a2a2a;
-                }
-
-                .page-image-crop img {
-                    width: 100%;
-                    /* Let JS compute the container height based on image's natural size
-                       so the visible percentage is consistent across different widths. */
-                    object-fit: cover;
-                    object-position: top;
-                    display: block;
-                }
-            </style>
-
+        <div class="pages-container" data-image-crop-ratio="0.5">
             @foreach ($chapter->images as $img)
                 <div class="page-image-crop">
                     <img loading="lazy" src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->alt ?? 'Page '.$img->page_number }}">
@@ -89,41 +77,16 @@
             @endforeach
         </div>
 
-        <script>
-            (function(){
-                const container = document.querySelector('.pages-container');
-                const cssRatio = getComputedStyle(container).getPropertyValue('--image-crop-ratio').trim();
-                const cropRatio = parseFloat(cssRatio) || 0.5;
+        {{-- Prev/Next buttons (bottom) --}}
+        <div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1rem; margin-bottom:1rem;">
+            @if(isset($prevChapter) && $prevChapter)
+                <a href="{{ route('chapters.show', [$comic, $prevChapter]) }}" class="btn btn-secondary">← Prev</a>
+            @endif
+            @if(isset($nextChapter) && $nextChapter)
+                <a href="{{ route('chapters.show', [$comic, $nextChapter]) }}" class="btn btn-secondary">Next →</a>
+            @endif
+        </div>
 
-                function setCropForImage(img){
-                    const parent = img.closest('.page-image-crop');
-                    if(!parent) return;
-                    const renderedWidth = img.clientWidth || img.width;
-                    const naturalWidth = img.naturalWidth || renderedWidth;
-                    const naturalHeight = img.naturalHeight || (renderedWidth * 1.5);
-                    const renderedHeight = (renderedWidth / naturalWidth) * naturalHeight;
-                    const visibleHeight = renderedHeight * cropRatio;
-                    parent.style.height = visibleHeight + 'px';
-                }
-
-                function updateAll(){
-                    document.querySelectorAll('.page-image-crop img').forEach(img => {
-                        if(img.complete){
-                            setCropForImage(img);
-                        } else {
-                            img.addEventListener('load', function onload(){
-                                img.removeEventListener('load', onload);
-                                setCropForImage(img);
-                            });
-                        }
-                    });
-                }
-
-                window.addEventListener('resize', () => requestAnimationFrame(updateAll));
-                document.addEventListener('DOMContentLoaded', updateAll);
-                updateAll();
-            })();
-        </script>
         @auth
             <div style="background-color: #3a3a3a; padding: 2rem; border-radius: 8px; margin-top: 2rem;">
                 <h3 style="color: #ff6b6b; margin-bottom: 1rem;">Comment on this Chapter</h3>
