@@ -13,7 +13,7 @@
                 </div>
             @endif
         </div>
-        <?php phpinfo(); ?>
+
         <div>
             <h1>{{ $comic->title }}</h1>
             <span class="badge badge-{{ $comic->status }}" style="display: block; width: fit-content;">{{ ucfirst($comic->status) }}</span>
