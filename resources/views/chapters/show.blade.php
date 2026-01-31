@@ -38,36 +38,6 @@
                     <a href="{{ route('chapters.show', [$comic, $nextChapter]) }}" class="btn btn-secondary">Next →</a>
                 @endif
             </div>
-            
-        @auth
-            <div class="actions">
-                <form action="{{ route('chapters.bookmark', $chapter) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-secondary">
-                        @if(auth()->user()->bookmarkedChapters()->where('chapter_id', $chapter->id)->exists())
-                            ❌ Unbookmark
-                        @else
-                            🔖 Bookmark
-                        @endif
-                    </button>
-                </form>
-
-                <div>
-                    <p style="margin-bottom: 0.5rem; font-weight: bold;">Rate this chapter:</p>
-                    <div class="rating-buttons">
-                        @for($i = 1; $i <= 10; $i++)
-                            <form action="{{ route('chapters.rate', $chapter) }}" method="POST" style="display: inline;">
-                                @csrf
-                                <input type="hidden" name="rating" value="{{ $i }}">
-                                <button type="submit" class="rating-btn @if(auth()->user()->ratedChapters()->where('chapter_id', $chapter->id)->wherePivot('rating', $i)->exists()) active @endif">
-                                    {{ $i }}
-                                </button>
-                            </form>
-                        @endfor
-                    </div>
-                </div>
-            </div>
-        @endauth
 
         <div class="pages-container" data-image-crop-ratio="0.5">
             @foreach ($chapter->images as $img)

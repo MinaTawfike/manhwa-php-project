@@ -71,6 +71,28 @@ class ComicController extends Controller
         return redirect()->route('comics.index')->with('success', 'Comic deleted successfully');
     }
 
+    public function bookmark(Comic $comic): RedirectResponse
+    {
+        auth()->user()->bookmarkedComics()->toggle($comic->id);
+        $status = auth()->user()->bookmarkedComics()->where('comic_id', $comic->id)->exists() 
+            ? 'bookmarked' 
+            : 'unbookmarked';
+        
+        return back()->with('success', "Comic {$status}");
+    }
+
+    public function bookmarks(): View
+    {
+        $bookmarkedComics = auth()->user()
+            ->bookmarkedComics()
+            ->with(['userLastChapters' => function ($query) {
+                $query->where('user_id', auth()->id());
+            }])
+            ->paginate(20);
+
+        return view('bookmarks.index', compact('bookmarkedComics'));
+    }
+
     private function uploadImage($image)
     {
         // Placeholder for Cloudinary upload

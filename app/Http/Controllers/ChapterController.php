@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chapter;
 use App\Models\Comic;
 use App\Models\ChapterImage;
+use App\Models\ComicUserLastChapter;
 
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -17,6 +18,20 @@ class ChapterController extends Controller
     public function show(Comic $comic, Chapter $chapter): View
     {
         $chapter->load('pages', 'bookmarkedBy', 'ratedBy', 'images');
+        
+        // Track last chapter viewed (if authenticated)
+        if (auth()->check()) {
+            ComicUserLastChapter::updateOrCreate(
+                [
+                    'comic_id' => $comic->id,
+                    'user_id' => auth()->id(),
+                ],
+                [
+                    'chapter_id' => $chapter->id,
+                ]
+            );
+        }
+        
         return view('chapters.show', compact('comic', 'chapter'));
     }
 

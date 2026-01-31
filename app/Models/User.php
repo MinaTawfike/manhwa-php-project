@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -60,5 +61,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Chapter::class, 'chapter_user_ratings')
             ->withPivot('rating')
             ->withTimestamps();
+    }
+
+    public function bookmarkedComics(): BelongsToMany
+    {
+        return $this->belongsToMany(Comic::class, 'comic_user_bookmarks')
+            ->withTimestamps();
+    }
+
+    public function lastChapterPerComic(): HasMany
+    {
+        return $this->hasMany(ComicUserLastChapter::class);
     }
 }

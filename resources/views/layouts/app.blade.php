@@ -14,7 +14,11 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a1a;
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.85) 0%, rgba(30, 30, 30, 0.85) 100%), 
+                        url('/anime-night-sky-illustration.jpg');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
             color: #e0e0e0;
             line-height: 1.6;
         }
@@ -336,9 +340,11 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <a href="{{ route('comics.index') }}" class="logo">🎌 Manhwa</a>
+                <a href="{{ route('comics.index') }}" class="logo">🎌 Manhua</a>
                 <nav>
                     @auth
+                        <a href="{{ route('comics.index') }}" style="color: #e0e0e0; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#ff6b6b'" onmouseout="this.style.color='#e0e0e0'">Manhuas</a>
+                        <a href="{{ route('bookmarks.index') }}" style="color: #e0e0e0; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#ff6b6b'" onmouseout="this.style.color='#e0e0e0'">🔖 Bookmarks</a>
                         <span>Welcome, {{ auth()->user()->name }}</span>
                         @if (Route::has('logout'))
                         <form method="POST" action="{{ route('logout') }}" style="display: inline;">

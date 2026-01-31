@@ -49,6 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/chapters/{chapter}/bookmark', [ChapterController::class, 'bookmark'])->name('chapters.bookmark');
     Route::post('/chapters/{chapter}/rate', [ChapterController::class, 'rate'])->name('chapters.rate');
     Route::post('/chapters/{chapter}/comment', [ChapterController::class, 'comment'])->name('chapters.comment');
+
+    // Comic interactions
+    Route::post('/comics/{comic}/bookmark', [ComicController::class, 'bookmark'])->name('comics.bookmark');
+    Route::get('/bookmarks', [ComicController::class, 'bookmarks'])->name('bookmarks.index');
 });
 
 require __DIR__.'/auth.php';

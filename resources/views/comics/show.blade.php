@@ -29,6 +29,16 @@
             
             @auth
                 <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <form action="{{ route('comics.bookmark', $comic) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-secondary">
+                            @if(auth()->user()->bookmarkedComics()->where('comic_id', $comic->id)->exists())
+                                ❌ Remove Bookmark
+                            @else
+                                🔖 Add Bookmark
+                            @endif
+                        </button>
+                    </form>
                     <a href="{{ route('comics.edit', $comic) }}" class="btn">Edit Comic</a>
                     <form action="{{ route('comics.destroy', $comic) }}" method="POST" style="display: inline;">
                         @csrf
@@ -56,7 +66,6 @@
                             <h3>Chapter {{ $chapter->number }}
                                 @if($chapter->name) - {{ $chapter->name }} @endif
                             </h3>
-                            <p>Rating: <strong>{{ $chapter->rating }}/10</strong> | Pages: {{ $chapter->pages->count() }}</p>
                             @if($chapter->comment)
                                 <p style="margin-top: 0.5rem; font-style: italic; color: #999;">{{ Str::limit($chapter->comment, 100) }}</p>
                             @endif
