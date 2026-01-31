@@ -7,7 +7,9 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
             <h1>Manhwa Comics</h1>
             @auth
-                <a href="{{ route('comics.create') }}" class="btn">+ Add Comic</a>
+                @if(auth()->user()->isSuperAdmin())
+                    <a href="{{ route('comics.create') }}" class="btn">+ Add Comic</a>
+                @endif
             @endauth
         </div>
 
@@ -28,12 +30,14 @@
                         <div style="display: flex; gap: 0.5rem;">
                             <a href="{{ route('comics.show', $comic) }}" class="btn" style="flex: 1; text-align: center; padding: 0.5rem;">View</a>
                             @auth
-                                <a href="{{ route('comics.edit', $comic) }}" class="btn btn-secondary" style="flex: 1; text-align: center; padding: 0.5rem;">Edit</a>
-                                <form action="{{ route('comics.destroy', $comic) }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-secondary" style="width: 100%;" onclick="return confirm('Delete this comic?')">Delete</button>
-                                </form>
+                                @if(auth()->user()->isSuperAdmin())
+                                    <a href="{{ route('comics.edit', $comic) }}" class="btn btn-secondary" style="flex: 1; text-align: center; padding: 0.5rem;">Edit</a>
+                                    <form action="{{ route('comics.destroy', $comic) }}" method="POST" style="flex: 1;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-secondary" style="width: 100%;" onclick="return confirm('Delete this comic?')">Delete</button>
+                                    </form>
+                                @endif
                             @endauth
                         </div>
                     </div>

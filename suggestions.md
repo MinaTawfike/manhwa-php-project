@@ -1,3 +1,41 @@
+## User Roles
+
+Define clear permission levels for site users. The roles below are suggested; for now implement only **Super Admin** and **Viewer / Subscriber** and keep the others documented for future work.
+
+- Super Admin — Full System Access
+	- Can manage other Admins, change site settings, and access sensitive billing or API data.
+
+- Admin — Full System Access
+	- Can create, edit, and delete any content or user, but cannot change core system configurations.
+
+- Editor / Moderator — Management Access
+	- Can edit or delete content (even if they didn't create it) but cannot manage users or settings.
+
+- Creator / Author — Limited Write Access
+	- Can create and edit their own content, but cannot touch anyone else's work.
+
+- Viewer / Subscriber — Read-Only Access
+	- Can view content and profile settings, bookmarks, comment, but cannot modify anything on the site.
+
+Current implementation
+- Implemented roles: **Super Admin**, **Viewer / Subscriber**.
+- All other roles are documented above and should be added to the authorization plan (policies/gates) when you expand role-based features.
+
+## Summary of Key Recommendations (short)
+- Authorization & policies: Add `ComicPolicy` and `ChapterPolicy` (or gates) and enforce with `$this->authorize()` or middleware so only permitted roles can manage content or users.
+- Bookmarking: Moved bookmarks to comics (M2M). Keep toggle endpoints and add UI to list bookmarks (done). Consider AJAX for instant feedback.
+- Ratings: Stop duplicating rating on `chapters.rating` and the pivot. Either store aggregate on chapter (update transactionally) or compute averages on read.
+- Query efficiency: Avoid per-button queries in views (preload `$isBookmarked` and `$userRating` in controller and pass to blade). Fix N+1 by eager-loading relations or using `withCount`.
+- CSS/Assets: Move inline CSS into `resources/css/app.css` (done) and JS into `resources/js/app.js` (done) for caching and maintainability.
+- Reader UX: Keep previous/next navigation; crop reader images client-side for consistent top-X% behavior (implemented). Consider a UI slider to adjust crop ratio.
+- SEO & meta: Add per-page meta description, Open Graph and Twitter cards in layouts for better sharing.
+- Tests: Add feature tests for CRUD, bookmarks, ratings, and authorization flows.
+- Operational: Ensure `php artisan storage:link` in deployment; migrate new bookmark/last-chapter tables; run `php artisan migrate` to apply created migrations.
+
+If you want, I can now:
+- Add role checks (policies) and enforce them on relevant controllers, or
+- Implement admin UI to manage users & their roles, or
+- Add unit/feature tests for the bookmark and last-chapter flows.
 55/75 Credits remaining
 Renews in 30 days
 can you review this website

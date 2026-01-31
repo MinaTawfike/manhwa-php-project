@@ -39,12 +39,14 @@
                             @endif
                         </button>
                     </form>
-                    <a href="{{ route('comics.edit', $comic) }}" class="btn">Edit Comic</a>
-                    <form action="{{ route('comics.destroy', $comic) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-secondary" onclick="return confirm('Delete this comic and all its chapters?')">Delete Comic</button>
-                    </form>
+                    @if(auth()->user()->isSuperAdmin())
+                        <a href="{{ route('comics.edit', $comic) }}" class="btn">Edit Comic</a>
+                        <form action="{{ route('comics.destroy', $comic) }}" method="POST" style="display: inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-secondary" onclick="return confirm('Delete this comic and all its chapters?')">Delete Comic</button>
+                        </form>
+                    @endif
                 </div>
             @endauth
         </div>
@@ -54,7 +56,9 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <h2>Chapters ({{ $comic->chapters->count() }})</h2>
             @auth
-                <a href="{{ route('chapters.create', $comic) }}" class="btn">+ Add Chapter</a>
+                @if(auth()->user()->isSuperAdmin())
+                    <a href="{{ route('chapters.create', $comic) }}" class="btn">+ Add Chapter</a>
+                @endif
             @endauth
         </div>
 
@@ -73,12 +77,14 @@
                         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;">
                             <a href="{{ route('chapters.show', [$comic, $chapter]) }}" class="btn" style="padding: 0.5rem 1rem;">Read</a>
                             @auth
-                                <a href="{{ route('chapters.edit', [$comic, $chapter]) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Edit</a>
-                                <form action="{{ route('chapters.destroy', [$comic, $chapter]) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;" onclick="return confirm('Delete this chapter?')">Delete</button>
-                                </form>
+                                @if(auth()->user()->isSuperAdmin())
+                                    <a href="{{ route('chapters.edit', [$comic, $chapter]) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Edit</a>
+                                    <form action="{{ route('chapters.destroy', [$comic, $chapter]) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;" onclick="return confirm('Delete this chapter?')">Delete</button>
+                                    </form>
+                                @endif
                             @endauth
                         </div>
                     </div>

@@ -59,26 +59,11 @@
 
         @auth
             <div style="background-color: #3a3a3a; padding: 2rem; border-radius: 8px; margin-top: 2rem;">
-                <h3 style="color: #ff6b6b; margin-bottom: 1rem;">Comment on this Chapter</h3>
-                <form action="{{ route('chapters.comment', $chapter) }}" method="POST">
-                    @csrf
-                    <div class="form-group">
-                        <textarea name="comment" placeholder="Your comment...">{{ $chapter->comment }}</textarea>
-                    </div>
-                    <button type="submit" class="btn">Save Comment</button>
-                </form>
+                {{-- Comment section removed - to be modified later --}}
             </div>
         @endauth
 
-        @if($chapter->comment)
-            <div style="background-color: #3a3a3a; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; border-left: 4px solid #ff6b6b;">
-                <h4 style="color: #ff6b6b; margin-bottom: 0.5rem;">Chapter Comment</h4>
-                <p>{{ $chapter->comment }}</p>
-            </div>
-        @endif
-    </div>
-
-    <div style="display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem;">
         <a href="{{ route('comics.show', $comic) }}" class="btn btn-secondary">← Back to Comic</a>
     </div>
 @endsection
