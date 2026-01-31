@@ -14,7 +14,11 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a1a;
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.85) 0%, rgba(30, 30, 30, 0.85) 100%), 
+                        url('/anime-night-sky-illustration.jpg');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
             color: #e0e0e0;
             line-height: 1.6;
         }
@@ -336,28 +340,35 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <a href="{{ route('comics.index') }}" class="logo">🎌 Manhwa</a>
+                <a href="{{ route('comics.index') }}" class="logo">🎌 Manhua</a>
                 <nav>
+                    <a href="{{ route('comics.index') }}">Comics</a>
+                    @auth
+                        <a href="{{ route('bookmarks.index') }}">🔖 Bookmarks</a>
+                        @if(auth()->user()->isSuperAdmin())
+                            <a href="{{ route('admin.users.index') }}">Admin</a>
+                        @endif
+                    @endauth
+                </nav>
+
+                <div class="auth-links">
                     @auth
                         <span>Welcome, {{ auth()->user()->name }}</span>
                         @if (Route::has('logout'))
-                        <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-secondary">Logout</button>
-                        </form>
+                            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary">Logout</button>
+                            </form>
                         @endif
                     @else
-                        <a href="{{ route('comics.index') }}">Comics</a>
-                        <div class="auth-links">
-                            @if (Route::has('login'))
-                                <a href="{{ route('login') }}" class="btn btn-secondary">Login</a>
-                            @endif
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="btn">Sign Up</a>
-                            @endif
-                        </div>
+                        @if (Route::has('login'))
+                            <a href="{{ route('login') }}" class="btn btn-secondary">Login</a>
+                        @endif
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="btn">Sign Up</a>
+                        @endif
                     @endauth
-                </nav>
+                </div>
             </div>
         </div>
     </header>

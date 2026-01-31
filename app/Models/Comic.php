@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Comic extends Model
 {
@@ -17,5 +18,16 @@ class Comic extends Model
     public function chapters(): HasMany
     {
         return $this->hasMany(Chapter::class);
+    }
+
+    public function bookmarkedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'comic_user_bookmarks')
+            ->withTimestamps();
+    }
+
+    public function userLastChapters(): HasMany
+    {
+        return $this->hasMany(ComicUserLastChapter::class);
     }
 }
