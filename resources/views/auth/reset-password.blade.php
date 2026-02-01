@@ -1,39 +1,66 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
-        @csrf
+    <div class="auth-title">Create New Password</div>
+    <div class="auth-subtitle">Set a strong password to secure your account</div>
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+    <div class="auth-card">
+        <form method="POST" action="{{ route('password.store') }}">
+            @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+            <!-- Password Reset Token -->
+            <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+            <!-- Email Address -->
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    id="email" 
+                    type="email" 
+                    name="email" 
+                    value="{{ old('email', $request->email) }}" 
+                    required 
+                    autofocus 
+                    autocomplete="username"
+                    placeholder="Your email"
+                />
+                @if ($errors->has('email'))
+                    <div class="form-error">{{ $errors->first('email') }}</div>
+                @endif
+            </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password">New Password</label>
+                <input 
+                    id="password" 
+                    type="password" 
+                    name="password" 
+                    required 
+                    autocomplete="new-password"
+                    placeholder="Enter new password"
+                />
+                @if ($errors->has('password'))
+                    <div class="form-error">{{ $errors->first('password') }}</div>
+                @endif
+            </div>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label for="password_confirmation">Confirm Password</label>
+                <input 
+                    id="password_confirmation" 
+                    type="password" 
+                    name="password_confirmation" 
+                    required 
+                    autocomplete="new-password"
+                    placeholder="Confirm new password"
+                />
+                @if ($errors->has('password_confirmation'))
+                    <div class="form-error">{{ $errors->first('password_confirmation') }}</div>
+                @endif
+            </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
+            <!-- Reset Button -->
+            <button type="submit" class="btn-primary">Reset Password</button>
+        </form>
+    </div>
 </x-guest-layout>
