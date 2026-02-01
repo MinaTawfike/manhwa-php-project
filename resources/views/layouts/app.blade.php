@@ -344,7 +344,9 @@
                 <nav>
                     <a href="{{ route('comics.index') }}">Comics</a>
                     @auth
-                        <a href="{{ route('bookmarks.index') }}">🔖 Bookmarks</a>
+                        <a href="{{ route('bookmarks.index') }}">🔖 Bookmarks
+                            
+                        </a>
                         @if(auth()->user()->isSuperAdmin())
                             <a href="{{ route('admin.users.index') }}">Admin</a>
                         @endif
@@ -353,7 +355,7 @@
 
                 <div class="auth-links">
                     @auth
-                        <span>Welcome, {{ auth()->user()->name }}</span>
+                        <span><a href="{{ route('profile.view') }}">Welcome, {{ auth()->user()->name }}</a></span>
                         @if (Route::has('logout'))
                             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                                 @csrf

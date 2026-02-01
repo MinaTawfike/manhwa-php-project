@@ -31,15 +31,40 @@
                                 @php
                                     $lastChapterRecord = $comic->userLastChapters->first();
                                     $lastChapter = $lastChapterRecord ? $lastChapterRecord->chapter : null;
+                                    $latestChapter = $comic->chapters->sortByDesc('number')->first();
+                                    $hasUnread = $latestChapter && (!$lastChapter || $lastChapter->id !== $latestChapter->id);
                                 @endphp
 
+                                {{-- Last Viewed --}}
                                 @if($lastChapter)
-                                    <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #b0b0b0;">
+                                    <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #b0b0b0; display: flex; align-items: center; gap: 0.5rem;">
                                         <strong>Last Viewed:</strong> Chapter {{ $lastChapter->number }}
+                                        
                                         @if($lastChapter->name)
                                             - {{ $lastChapter->name }}
                                         @endif
                                     </p>
+                                @else
+                                    <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #999;">
+                                        <strong>Last Viewed:</strong> Not started yet
+                                    </p>
+                                @endif
+
+                                {{-- Latest Available --}}
+                                @if($latestChapter)
+                                    <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #b0b0b0;">
+                                        <strong>Latest Available:</strong> Chapter {{ $latestChapter->number }}
+                                        @if($hasUnread)
+                                            <span style="width: 10px; height: 10px; background-color: #4caf50; border-radius: 50%; display: inline-block;" title="Unread chapters available"></span>
+                                        @endif
+                                        @if($latestChapter->name)
+                                            - {{ $latestChapter->name }}
+                                        @endif
+                                    </p>
+                                @endif
+
+                                {{-- Continue Reading Button --}}
+                                @if($lastChapter)
                                     <a href="{{ route('chapters.show', [$comic, $lastChapter]) }}" class="btn" style="display: inline-block; padding: 0.5rem 1rem; font-size: 0.9rem; width: 100%; text-align: center;">Continue Reading</a>
                                 @else
                                     <p style="margin: 0; font-size: 0.9rem; color: #999; text-align: center;">No chapters viewed yet</p>

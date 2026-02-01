@@ -19,8 +19,20 @@
                         {{ __('Comics') }}
                     </x-nav-link>
                     @auth
-                        <x-nav-link :href="route('bookmarks.index')" :active="request()->routeIs('bookmarks.index')">
+                        <x-nav-link :href="route('bookmarks.index')" :active="request()->routeIs('bookmarks.index')" style="position: relative; display: flex; align-items: center; gap: 0.5rem;">
                             {{ __('Bookmarks') }}
+                            @php
+                                $hasUnreadBookmarks = auth()->user()->bookmarkedComics()
+                                    ->get()
+                                    ->some(function($comic) {
+                                        $lastChapter = $comic->userLastChapters->first()?->chapter;
+                                        $latestChapter = $comic->chapters->sortByDesc('number')->first();
+                                        return $latestChapter && (!$lastChapter || $lastChapter->id !== $latestChapter->id);
+                                    });
+                            @endphp
+                            @if($hasUnreadBookmarks)
+                                <span style="width: 8px; height: 8px; background-color: #4caf50; border-radius: 50%; display: inline-block;" title="Unread chapters in bookmarked comics"></span>
+                            @endif
                         </x-nav-link>
                         @if(auth()->user()->isSuperAdmin())
                             <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.index')">
