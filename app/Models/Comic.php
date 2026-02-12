@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Str;
 
 class Comic extends Model
 {
@@ -30,4 +31,20 @@ class Comic extends Model
     {
         return $this->hasMany(ComicUserLastChapter::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($comic) {
+            $comic->slug = Str::slug($comic->title);
+        });
+
+        static::updating(function ($comic) {
+            if ($comic->isDirty('title')) {
+                $comic->slug = Str::slug($comic->title);
+            }
+        });
+    }
+
 }

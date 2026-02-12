@@ -354,7 +354,7 @@
             <!-- Welcome Section -->
             <div class="welcome-section">
                 <h1>Welcome back, {{ $user->name }}!</h1>
-                <p>Your Manhwa profile dashboard</p>
+                <p>Your Manhua profile dashboard</p>
             </div>
 
             <!-- Success Message -->
@@ -368,11 +368,11 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number">{{ auth()->user()->bookmarkedComics?->count() ?? 0 }}</div>
-                    <div class="stat-label">Bookmarked Comics</div>
+                    <div class="stat-label">Bookmarked Manhuas</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">{{ auth()->user()->lastChaptersPerComic?->count() ?? 0 }}</div>
-                    <div class="stat-label">Comics Reading</div>
+      <div class="stat-number">{{ auth()->check() ? auth()->user()->unreadBookmarkedComicsCount() : 0 }}</div>
+                    <div class="stat-label">Unread Manhuas</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" style="font-size: 0.9rem;">{{ $user->email }}</div>
@@ -383,7 +383,7 @@
             <!-- Action Buttons -->
             <div class="actions-grid">
                 <a href="{{ route('comics.index') }}" class="action-btn action-btn-primary">
-                    📚 Browse Comics
+                    📚 Browse Manhuas
                 </a>
                 <a href="{{ route('bookmarks.index') }}" class="action-btn action-btn-secondary">
                     🔖 My Bookmarks

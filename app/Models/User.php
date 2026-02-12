@@ -77,4 +77,42 @@ class User extends Authenticatable
         return $this->role === 'super_admin';
     }
 
+    public function unreadBookmarkedComicsCount(): int
+    {
+        $count = 0;
+
+        // Load relations once (avoid N+1)
+        $comics = $this->bookmarkedComics()
+            ->with(['chapters', 'userLastChapters'])
+            ->get();
+
+        foreach ($comics as $comic) {
+
+            // Latest chapter
+            $latestChapter = $comic->chapters->sortByDesc('id')->first();
+
+            if (! $latestChapter) {
+                continue;
+            }
+
+            // User progress for this comic
+            $progress = $comic->userLastChapters
+                ->where('user_id', $this->id)
+                ->first();
+
+            // Never read
+            if (! $progress) {
+                $count++;
+                continue;
+            }
+
+            // Has unread
+            if ($latestChapter->id > $progress->chapter_id) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
 }

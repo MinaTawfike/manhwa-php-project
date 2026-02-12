@@ -68,6 +68,7 @@
         .auth-links {
             display: flex;
             gap: 1rem;
+            align-items: center;
         }
 
         .btn {
@@ -345,7 +346,15 @@
                     <a href="{{ route('comics.index') }}">Comics</a>
                     @auth
                         <a href="{{ route('bookmarks.index') }}">🔖 Bookmarks
-                            
+                            @if(auth()->check() && $unreadBookmarkedComicsCount > 0)
+                                <span
+                                    class="ml-2 inline-flex items-center justify-center
+                                        text-xs font-bold text-white
+                                        bg-red-600 rounded-full
+                                        w-5 h-5">
+                                    {{ $unreadBookmarkedComicsCount }}
+                                </span>
+                            @endif
                         </a>
                         @if(auth()->user()->isSuperAdmin())
                             <a href="{{ route('admin.users.index') }}">Admin</a>

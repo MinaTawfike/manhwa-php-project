@@ -13,21 +13,21 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
     // Comic management
     Route::get('/comics/create', [ComicController::class, 'create'])->name('comics.create');
     Route::post('/comics', [ComicController::class, 'store'])->name('comics.store');
-    Route::get('/comics/{comic}/edit', [ComicController::class, 'edit'])->name('comics.edit');
-    Route::put('/comics/{comic}', [ComicController::class, 'update'])->name('comics.update');
-    Route::delete('/comics/{comic}', [ComicController::class, 'destroy'])->name('comics.destroy');
+    Route::get('/comics/{comic:slug}/edit', [ComicController::class, 'edit'])->name('comics.edit');
+    Route::put('/comics/{comic:slug}', [ComicController::class, 'update'])->name('comics.update');
+    Route::delete('/comics/{comic:slug}', [ComicController::class, 'destroy'])->name('comics.destroy');
 
     // Chapter management
-    Route::get('/comics/{comic}/chapters/create', [ChapterController::class, 'create'])->name('chapters.create');
-    Route::post('/comics/{comic}/chapters', [ChapterController::class, 'store'])->name('chapters.store');
-    Route::get('/comics/{comic}/chapters/{chapter}/edit', [ChapterController::class, 'edit'])->name('chapters.edit');
-    Route::put('/comics/{comic}/chapters/{chapter}', [ChapterController::class, 'update'])->name('chapters.update');
-    Route::delete('/comics/{comic}/chapters/{chapter}', [ChapterController::class, 'destroy'])->name('chapters.destroy');
+    Route::get('/comics/{comic:slug}/chapters/create', [ChapterController::class, 'create'])->name('chapters.create');
+    Route::post('/comics/{comic:slug}/chapters', [ChapterController::class, 'store'])->name('chapters.store');
+    Route::get('/comics/{comic:slug}/chapters/{chapter}/edit', [ChapterController::class, 'edit'])->name('chapters.edit');
+    Route::put('/comics/{comic:slug}/chapters/{chapter}', [ChapterController::class, 'update'])->name('chapters.update');
+    Route::delete('/comics/{comic:slug}/chapters/{chapter}', [ChapterController::class, 'destroy'])->name('chapters.destroy');
 });
 
-Route::get('/comics/{comic}', [ComicController::class, 'show'])->name('comics.show');
+Route::get('/comics/{comic:slug}', [ComicController::class, 'show'])->name('comics.show');
 // Allow public reading of chapters. Move this into auth group if you want login-required reading.
-Route::get('/comics/{comic}/chapters/{chapter}', [ChapterController::class, 'show'])->name('chapters.show');
+Route::get('/comics/{comic:slug}/chapters/{chapter}', [ChapterController::class, 'show'])->name('chapters.show');
 
 // Dashboard (Breeze)
 Route::get('/dashboard', function () {
@@ -50,7 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/chapters/{chapter}/comment', [ChapterController::class, 'comment'])->name('chapters.comment');
 
     // Comic interactions (allowed for all authenticated users)
-    Route::post('/comics/{comic}/bookmark', [ComicController::class, 'bookmark'])->name('comics.bookmark');
+    Route::post('/comics/{comic:slug}/bookmark', [ComicController::class, 'bookmark'])->name('comics.bookmark');
     Route::get('/bookmarks', [ComicController::class, 'bookmarks'])->name('bookmarks.index');
 });
 
