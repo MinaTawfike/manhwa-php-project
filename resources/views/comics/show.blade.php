@@ -54,7 +54,7 @@
 
     <div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h2>Chapters ({{ $comic->chapteasdasdunt() }})</h2>
+            <h2>Chapters ({{ $comic->chapters->count() }})</h2>
             @auth
                 @if(auth()->user()->isSuperAdmin())
                     <a href="{{ route('chapters.create', $comic) }}" class="btn">+ Add Chapter</a>
