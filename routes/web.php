@@ -7,6 +7,9 @@ use App\Http\Controllers\ProfileController;
 
 // Public routes
 Route::get('/', [ComicController::class, 'index'])->name('comics.index');
+Route::get('/error', function () {
+    return view('errors.custom'); // create this view
+})->name('error.page');
 
 // Content management (only super admins) - must come before /comics/{comic} to prevent collision
 Route::middleware(['auth', 'super.admin'])->group(function () {
