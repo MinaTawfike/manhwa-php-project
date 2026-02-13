@@ -69,8 +69,8 @@ class ChapterController extends Controller
             $page = 1;
 
             foreach ($files as $file) {
-                // Store under public disk: storage/app/public/chapter_pages/{chapter_id}/
-                $path = $file->store("chapter_pages/{$chapter->id}", 'public');
+                // Store under public disk: storage/app/public/{$chapter->comic->slug}/{$chapter->number}/
+                $path = $file->store("{$chapter->comic->slug}/chapter {$chapter->number}", 'public');
 
                 ChapterImage::create([
                     'chapter_id' => $chapter->id,

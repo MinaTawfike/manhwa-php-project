@@ -6,6 +6,7 @@ use App\Models\Comic;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 
 class ComicController extends Controller
 {
@@ -34,12 +35,16 @@ class ComicController extends Controller
             'poster' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:ongoing,completed,hiatus',
         ]);
+        
+        $comic = Comic::create($validated);
 
         if ($request->hasFile('poster')) {
-            $validated['poster'] = $this->uploadImage($request->file('poster'));
+            
+            $path = $this->uploadImage($request->file('poster'), $comic->slug);
+            $comic->update(['poster' => $path]);
         }
 
-        Comic::create($validated);
+        
         return redirect()->route('comics.index')->with('success', 'Comic created successfully');
     }
 
@@ -58,7 +63,7 @@ class ComicController extends Controller
         ]);
 
         if ($request->hasFile('poster')) {
-            $validated['poster'] = $this->uploadImage($request->file('poster'));
+            $validated['poster'] = $this->uploadImage($request->file('poster'), $comic->slug);
         }
 
         $comic->update($validated);
@@ -93,12 +98,12 @@ class ComicController extends Controller
         return view('bookmarks.index', compact('bookmarkedComics'));
     }
 
-    private function uploadImage($image)
+    private function uploadImage($image, $folder = 'comics')
     {
         // Placeholder for Cloudinary upload
         // TODO: Implement Cloudinary integration
         // For now, store locally
-        $path = $image->store('comics', 'public');
+        $path = $image->store($folder, 'public');
         return '/storage/' . $path;
     }
 }

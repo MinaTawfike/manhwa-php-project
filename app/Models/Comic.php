@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
+
 
 class Comic extends Model
 {
@@ -37,14 +40,41 @@ class Comic extends Model
         parent::boot();
 
         static::creating(function ($comic) {
-            $comic->slug = Str::slug($comic->title);
+            $comic->slug = static::generateUniqueSlug($comic->title);
         });
 
         static::updating(function ($comic) {
             if ($comic->isDirty('title')) {
-                $comic->slug = Str::slug($comic->title);
+                $comic->slug = static::generateUniqueSlug($comic->title, $comic->id);
             }
         });
     }
 
+    protected static function generateUniqueSlug($title, $ignoreId = null)
+    {
+        $slug = Str::slug($title);
+        $original = $slug;
+        $count = 1;
+
+        while (static::where('slug', $slug)
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()) {
+
+            $slug = $original . '-' . $count++;
+        }
+
+        return $slug;
+    }
+
+
+    protected static function booted()
+    {
+        static::deleting(function ($comic) {
+            // Delete poster file if exists
+            if ($comic->poster) {
+                Storage::disk('public')->delete($comic->poster);
+                Storage::disk('public')->deleteDirectory("{$comic->slug}");
+            }
+        });
+    }
 }
