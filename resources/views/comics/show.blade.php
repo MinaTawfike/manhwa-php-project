@@ -94,4 +94,9 @@
             <p style="text-align: center; color: #999; padding: 2rem;">No chapters yet. @auth <a href="{{ route('chapters.create', $comic) }}">Create the first one</a>@endauth</p>
         @endif
     </div>
+
+    <x-disqus
+        :url="url()->current()"
+        :identifier="'comic-'.$comic->id"
+    />
 @endsection

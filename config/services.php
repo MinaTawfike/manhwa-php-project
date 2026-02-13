@@ -34,5 +34,10 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    
+    'disqus' => [
+        'shortname' => env('DISQUS_SHORTNAME'),
+    ],
+
 
 ];

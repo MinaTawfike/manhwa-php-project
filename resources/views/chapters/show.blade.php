@@ -66,4 +66,9 @@
         <div style="display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem;">
         <a href="{{ route('comics.show', $comic) }}" class="btn btn-secondary">← Back to Comic</a>
     </div>
+
+    <x-disqus
+        :url="url()->current()"
+        :identifier="'chapter-'.$chapter->id"
+    />
 @endsection
