@@ -488,6 +488,14 @@
 
     <footer>
         <div class="container">
+                   <a href="{{ config('contact.discord') }}" target="_blank" style="color: #7289DA;">Join Our Discord server here</a>
+            <br>
+            You Can Contact Us At: 📧
+            <a href="mailto:{{ config('contact.email') }}" style="color: #D14836;">{{ config('contact.email') }}</a>
+            <br>
+            You Can find our YouTube channel here: 📺
+            <a href="{{ config('contact.youtube') }}" target="_blank" style="color: #FF0000;">MT Manga Translator</a>
+
             <p>&copy; 2026 Manhwa Website. All rights reserved.</p>
         </div>
     </footer>
