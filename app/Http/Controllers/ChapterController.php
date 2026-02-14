@@ -93,6 +93,14 @@ class ChapterController extends Controller
 
     public function update(Request $request, Comic $comic, Chapter $chapter): RedirectResponse
     {
+        //for reordering
+        $request->merge([
+            'order' => $request->order
+                ? json_decode($request->order, true)
+                : []
+        ]);
+        
+        
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',
             'number' => 'required|integer',
@@ -101,8 +109,8 @@ class ChapterController extends Controller
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp,avif', 'max:5120'],
 
             // Reordering: array of image_id => page_number
-            'order' => ['nullable', 'array'],
-            'order.*' => ['integer', 'min:1'],
+            'order'   => 'nullable|array',
+            'order.*' => 'integer|exists:chapter_images,id',
 
             // Deletions: array of image IDs to delete
             'delete_images' => ['nullable', 'array'],
@@ -114,7 +122,6 @@ class ChapterController extends Controller
             $chapter->update([
                 'name' => $validated['name'],
                 'number' => $validated['number'],
-                'comment' => $validated['comment'],
             ]);
 
             // 1) Handle deletions
@@ -149,14 +156,36 @@ class ChapterController extends Controller
             }
 
             // 3) Handle reordering: set explicit page_number values
+
+            
             if (!empty($validated['order'])) {
-                foreach ($validated['order'] as $imageId => $pageNumber) {
-                    // Update only images belonging to this chapter
-                    ChapterImage::where('chapter_id', $chapter->id)
-                        ->where('id', $imageId)
-                        ->update(['page_number' => (int) $pageNumber]);
-                }
-            }
+                //dd($validated['order']);
+
+                DB::transaction(function () use ($validated, $chapter) {
+
+                    // Step 1: assign temporary numbers
+                    foreach ($validated['order'] as $index => $imageId) {
+                        ChapterImage::where('chapter_id', $chapter->id)
+                            ->where('id', $imageId)
+                            ->update([
+                                'page_number' => 1000 + $index + 1
+                            ]);
+                    }
+
+                    // Step 2: normalize to 1..n
+                    $chapter->images()->orderBy('page_number')->get()->each(function ($img, $i) {
+                        $img->update([
+                            'page_number' => $i + 1
+                        ]);
+                    });
+
+                });
+
+            }      
+                
+
+
+
 
             // 4) Normalize page_number to 1..N without gaps and duplicates
             $ordered = $chapter->images()->get()->sortBy('page_number')->values();

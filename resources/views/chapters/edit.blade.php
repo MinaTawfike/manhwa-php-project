@@ -1,4 +1,7 @@
+
+
 @extends('layouts.app')
+
 
 @section('title', 'Edit Chapter')
 
@@ -21,7 +24,11 @@
     @endif
 
 
-    <form action="{{ route('chapters.update', [$comic, $chapter]) }}" method="POST" style="max-width: 600px;" enctype="multipart/form-data">
+    <form action="{{ route('chapters.update', [$comic, $chapter]) }}" 
+            method="POST" 
+            style="max-width: 600px;" 
+            enctype="multipart/form-data" 
+            id="chapterForm">
         @csrf
         @method('PUT')
 
@@ -50,26 +57,17 @@
 
         <!-- Existing pages: reorder and delete -->
         <div class="form-group">
-            <label class="form-label">Existing pages</label>
+            <label class="form-label">Existing pages (Drag to reorder)</label>
 
-            <div class="row g-3">
+            <div class="row g-3" id="sortable-images">
                 @foreach ($chapter->images as $img)
-                    <div class="col-12 d-flex align-items-start border p-2 rounded">
+                    <div class="col-12 d-flex align-items-start border p-2 rounded image-item" data-id="{{ $img->id }}">
                         {{-- Thumbnail (cropped to top using object-position) --}}
                         <img src="{{ $img->path }}"
                              alt="{{ $img->alt ?? 'Page '.$img->page_number }}"
                              style="width: 120px; height: 120px; object-fit: cover; object-position: top; margin-right: 12px;">
                         <div class="flex-grow-1">
-                            <div class="d-flex align-items-center mb-2">
-                                <!-- Page number input for reordering -->
-                                <label class="me-2">Page #</label>
-                                <input type="number"
-                                       name="order[{{ $img->id }}]"
-                                       value="{{ $img->page_number }}"
-                                       min="1"
-                                       class="form-control"
-                                       style="width: 100px;">
-                            </div>
+                            
                             <div class="form-check">
                                 <input class="form-check-input"
                                        type="checkbox"
@@ -82,22 +80,45 @@
                     </div>
                 @endforeach
             </div>
-
-            <small class="text-muted d-block mt-2">Adjust page numbers to reorder. Check delete to remove specific images.</small>
+            {{-- NEW: Hidden field for order --}}
+            <input type="hidden" name="order" id="orderInput">
+            <small class="text-muted d-block mt-2">Drag pages to reorder them.</small>
         </div>
-
-
-        <div class="form-group">
-            <label for="comment">Comment</label>
-            <textarea id="comment" name="comment" placeholder="Add a comment about this chapter...">{{ old('comment', $chapter->comment) }}</textarea>
-            @error('comment')
-                <p style="color: #f44336; font-size: 0.9rem;">{{ $message }}</p>
-            @enderror
-        </div>
-
+       
         <div style="display: flex; gap: 1rem;">
             <button type="submit" class="btn">Update Chapter</button>
             <a href="{{ route('chapters.show', [$comic, $chapter]) }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
+
+    {{-- NEW: SortableJS --}}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+    {{-- NEW: Drag logic --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const list = document.getElementById('sortable-images');
+            const orderInput = document.getElementById('orderInput');
+            const form = document.getElementById('chapterForm');
+
+            new Sortable(list, {
+                animation: 150,
+                ghostClass: 'bg-light'
+            });
+
+            // Before submit → collect order
+            form.addEventListener('submit', function () {
+
+                let order = [];
+
+                document.querySelectorAll('.image-item').forEach(item => {
+                    order.push(item.dataset.id);
+                });
+
+                orderInput.value = JSON.stringify(order);
+            });
+
+        });
+    </script>
 @endsection
