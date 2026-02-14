@@ -72,8 +72,8 @@ class Comic extends Model
         static::deleting(function ($comic) {
             // Delete poster file if exists
             if ($comic->poster) {
-                Storage::disk('public')->delete($comic->poster);
-                Storage::disk('public')->deleteDirectory("{$comic->slug}");
+                Storage::disk('r2')->delete($comic->poster);
+                Storage::disk('r2')->deleteDirectory("comics/{$comic->id}");
             }
         });
     }

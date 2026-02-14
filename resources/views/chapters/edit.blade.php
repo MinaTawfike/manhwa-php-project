@@ -56,7 +56,7 @@
                 @foreach ($chapter->images as $img)
                     <div class="col-12 d-flex align-items-start border p-2 rounded">
                         {{-- Thumbnail (cropped to top using object-position) --}}
-                        <img src="{{ asset('storage/'. $img->path) }}"
+                        <img src="{{ $img->path }}"
                              alt="{{ $img->alt ?? 'Page '.$img->page_number }}"
                              style="width: 120px; height: 120px; object-fit: cover; object-position: top; margin-right: 12px;">
                         <div class="flex-grow-1">

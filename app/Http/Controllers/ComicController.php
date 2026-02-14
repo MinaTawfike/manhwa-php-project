@@ -6,7 +6,8 @@ use App\Models\Comic;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
 
 class ComicController extends Controller
 {
@@ -40,7 +41,7 @@ class ComicController extends Controller
 
         if ($request->hasFile('poster')) {
             
-            $path = $this->uploadImage($request->file('poster'), $comic->slug);
+            $path = $this->uploadImage($request->file('poster'), $comic->id);
             $comic->update(['poster' => $path]);
         }
 
@@ -63,7 +64,7 @@ class ComicController extends Controller
         ]);
 
         if ($request->hasFile('poster')) {
-            $validated['poster'] = $this->uploadImage($request->file('poster'), $comic->slug);
+            $validated['poster'] = $this->uploadImage($request->file('poster'), $comic->id);
         }
 
         $comic->update($validated);
@@ -98,12 +99,12 @@ class ComicController extends Controller
         return view('bookmarks.index', compact('bookmarkedComics'));
     }
 
-    private function uploadImage($image, $folder = 'comics')
+    private function uploadImage($image, $comicId)
     {
         // Placeholder for Cloudinary upload
         // TODO: Implement Cloudinary integration
         // For now, store locally
-        $path = $image->store($folder, 'public');
-        return '/storage/' . $path;
+        $path = $image->storeAs("comics/{$comicId}", $image->hashName(), 'r2');
+        return Storage::disk('r2')->url($path);
     }
 }

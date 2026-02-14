@@ -30,6 +30,7 @@
                 @php
                     $prevChapter = $comic->chapters()->where('number', '<', $chapter->number)->orderBy('number', 'desc')->first();
                     $nextChapter = $comic->chapters()->where('number', '>', $chapter->number)->orderBy('number', 'asc')->first();
+                    
                 @endphp
                 @if($prevChapter)
                     <a href="{{ route('chapters.show', [$comic, $prevChapter]) }}" class="btn btn-secondary">← Prev</a>
@@ -40,9 +41,12 @@
             </div>
 
         <div class="pages-container" data-image-crop-ratio="0.5">
+            @php
+                use Illuminate\Support\Facades\Storage;
+            @endphp
             @foreach ($chapter->images as $img)
                 <div class="page-image-crop">
-                    <img loading="lazy" src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->alt ?? 'Page '.$img->page_number }}">
+                    <img loading="lazy" src="{{ $img->path }}" alt="{{ $img->alt ?? 'Page '.$img->page_number }}">
                 </div>
             @endforeach
         </div>

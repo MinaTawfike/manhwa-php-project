@@ -1,3 +1,10 @@
+## on production
+APP_ENV=production
+APP_DEBUG=false
+
+composer install --no-dev
+
+
 
 ## how to use a seperate media server
 

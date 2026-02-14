@@ -69,8 +69,7 @@ class ChapterController extends Controller
             $page = 1;
 
             foreach ($files as $file) {
-                // Store under public disk: storage/app/public/{$chapter->comic->slug}/{$chapter->number}/
-                $path = $file->store("{$chapter->comic->slug}/chapter {$chapter->number}", 'public');
+                $path = $this->uploadImage($file, $chapter);
 
                 ChapterImage::create([
                     'chapter_id' => $chapter->id,
@@ -128,7 +127,7 @@ class ChapterController extends Controller
                 foreach ($toDelete as $img) {
                     // Remove underlying file (ignore if missing)
                     if ($img->path) {
-                        Storage::disk('public')->delete($img->path);
+                        Storage::disk('r2')->delete($img->path);
                     }
                     $img->delete();
                 }
@@ -139,7 +138,7 @@ class ChapterController extends Controller
             if ($files) {
                 $nextPage = (int) $chapter->images()->count() + 1;
                 foreach ($files as $file) {
-                    $path = $file->store("chapter_pages/{$chapter->id}", 'public');
+                    $path = $this->uploadImage($file, $chapter);
                     ChapterImage::create([
                         'chapter_id' => $chapter->id,
                         'path' => $path,
@@ -181,39 +180,13 @@ class ChapterController extends Controller
         return redirect()->route('comics.show', $comic)->with('success', 'Chapter deleted successfully');
     }
 
-    public function bookmark(Chapter $chapter): RedirectResponse
+
+    private function uploadImage($image, $chapter)
     {
-        auth()->user()->bookmarkedChapters()->toggle($chapter->id);
-        $status = auth()->user()->bookmarkedChapters()->where('chapter_id', $chapter->id)->exists() 
-            ? 'bookmarked' 
-            : 'unbookmarked';
-        
-        return back()->with('success', "Chapter {$status}");
-    }
-
-    public function rate(Chapter $chapter, Request $request): RedirectResponse
-    {
-        $request->validate([
-            'rating' => 'required|integer|between:1,10',
-        ]);
-
-        auth()->user()->ratedChapters()->syncWithoutDetaching([
-            $chapter->id => ['rating' => $request->input('rating')]
-        ]);
-
-        $chapter->update(['rating' => $request->input('rating')]);
-
-        return back()->with('success', 'Rating saved successfully');
-    }
-
-    public function comment(Chapter $chapter, Request $request): RedirectResponse
-    {
-        $request->validate([
-            'comment' => 'nullable|string',
-        ]);
-
-        $chapter->update(['comment' => $request->input('comment')]);
-
-        return back()->with('success', 'Comment saved successfully');
+        // Placeholder for Cloudinary upload
+        // TODO: Implement Cloudinary integration
+        // For now, store locally
+        $path = $image->storeAs("comics/{$chapter->comic->id}/chapter-id-{$chapter->id}", $image->hashName(), 'r2');
+        return Storage::disk('r2')->url($path);
     }
 }

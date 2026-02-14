@@ -57,16 +57,10 @@ class Chapter extends Model
             // Load images if not loaded
             $chapter->loadMissing('images');
 
-            // Delete image files
-            foreach ($chapter->images as $image) {
-                if ($image->path) {
-                    Storage::disk('public')->delete($image->path);
-                }
-            }
 
             // Delete chapter folder (cleanup)
-            Storage::disk('public')
-               ->deleteDirectory("{$chapter->comic->slug}/chapter {$chapter->number}");
+            Storage::disk('r2')
+               ->deleteDirectory("comics/{$chapter->comic->id}/chapter-id-{$chapter->id}");
         });
     }
 
