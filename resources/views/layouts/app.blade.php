@@ -415,8 +415,13 @@
             <br>
             You Can find our YouTube channel here: 📺
             <a href="{{ config('contact.youtube') }}" target="_blank" style="color: #FF0000;">MT Manga Translator</a>
+            <br><br>
+            <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ route('terms') }}" style="color: #e0e0e0; text-decoration: none;">Terms & Conditions</a>
+                <a href="{{ route('privacy') }}" style="color: #e0e0e0; text-decoration: none;">Privacy Policy</a>
+            </div>
 
-            <p>&copy; 2026 Manhwa Website. All rights reserved.</p>
+            <p style="margin-top: 1.5rem;">&copy; 2026 Manhwa Website. All rights reserved.</p>
         </div>
     </footer>
 </body>

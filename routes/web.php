@@ -7,6 +7,12 @@ use App\Http\Controllers\ProfileController;
 
 // Public routes
 Route::get('/', [ComicController::class, 'index'])->name('comics.index');
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
 Route::get('/error', function () {
     return view('errors.custom'); // create this view
 })->name('error.page');
