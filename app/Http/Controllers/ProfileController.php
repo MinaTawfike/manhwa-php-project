@@ -55,7 +55,9 @@ class ProfileController extends Controller
     {
         $validated = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[A-Za-z])(?=.*\d).+$/'],
+        ], [
+            'password.regex' => 'Password must contain at least one letter and one number.',
         ]);
 
         $request->user()->update([

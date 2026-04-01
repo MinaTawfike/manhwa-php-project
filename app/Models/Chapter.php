@@ -13,11 +13,16 @@ use Illuminate\Support\Facades\Storage;
 
 class Chapter extends Model
 {
-    protected $fillable = ['comic_id', 'name', 'number', 'rating', 'comment'];
+    protected $fillable = ['comic_id', 'name', 'number', 'rating', 'comment', 'user_id'];
 
     public function comic(): BelongsTo
     {
         return $this->belongsTo(Comic::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function pages(): HasMany

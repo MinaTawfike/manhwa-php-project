@@ -18,7 +18,7 @@ Route::get('/error', function () {
 })->name('error.page');
 
 // Content management (only super admins) - must come before /comics/{comic} to prevent collision
-Route::middleware(['auth', 'super.admin'])->group(function () {
+Route::middleware(['auth', 'super.admin', 'throttle:60,1'])->group(function () {
     // Comic management
     Route::get('/comics/create', [ComicController::class, 'create'])->name('comics.create');
     Route::post('/comics', [ComicController::class, 'store'])->name('comics.store');
@@ -44,7 +44,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Authenticated routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'throttle:60,1'])->group(function () {
     // Profile (Breeze)
     Route::get('/profile', [ProfileController::class, 'view'])->name('profile.view');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -64,7 +64,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin user management (protected by EnsureSuperAdmin middleware alias)
-Route::middleware(['auth', 'super.admin'])->group(function () {
+Route::middleware(['auth', 'super.admin', 'throttle:60,1'])->group(function () {
     Route::get('/admin/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])
         ->name('admin.users.index');
 

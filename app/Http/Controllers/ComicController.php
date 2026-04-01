@@ -37,6 +37,7 @@ class ComicController extends Controller
             'status' => 'required|in:ongoing,completed,hiatus',
         ]);
         
+        $validated['user_id'] = auth()->id();
         $comic = Comic::create($validated);
 
         if ($request->hasFile('poster')) {
@@ -51,11 +52,21 @@ class ComicController extends Controller
 
     public function edit(Comic $comic): View
     {
+        // Allow super admins or comic owners
+        if (!auth()->user()->isSuperAdmin() && $comic->user_id !== auth()->id()) {
+            abort(403);
+        }
+        
         return view('comics.edit', compact('comic'));
     }
 
     public function update(Request $request, Comic $comic): RedirectResponse
     {
+        // Allow super admins or comic owners
+        if (!auth()->user()->isSuperAdmin() && $comic->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -73,6 +84,11 @@ class ComicController extends Controller
 
     public function destroy(Comic $comic): RedirectResponse
     {
+        // Allow super admins or comic owners
+        if (!auth()->user()->isSuperAdmin() && $comic->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $comic->delete();
         return redirect()->route('comics.index')->with('success', 'Comic deleted successfully');
     }

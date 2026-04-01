@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Comic extends Model
 {
-    protected $fillable = ['title', 'description', 'poster', 'status', 'latest_update', 'options'];
+    protected $fillable = ['title', 'description', 'poster', 'status', 'latest_update', 'options', 'user_id'];
     
     protected $casts = [
         'options' => 'array',
@@ -22,6 +23,11 @@ class Comic extends Model
     public function chapters(): HasMany
     {
         return $this->hasMany(Chapter::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function bookmarkedBy(): BelongsToMany

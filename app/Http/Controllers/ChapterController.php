@@ -28,7 +28,7 @@ class ChapterController extends Controller
                 ],
                 [
                     'chapter_id' => $chapter->id,
-                ]
+                ],
             );
         }
         
@@ -61,6 +61,7 @@ class ChapterController extends Controller
                 'number' => $validated['number'],
                 'comment' => $validated['comment'],
                 'comic_id' => $validated['comic_id'],
+                'user_id' => auth()->id(),
                 // ... add other fields
             ]);
 
@@ -87,12 +88,22 @@ class ChapterController extends Controller
 
     public function edit(Comic $comic, Chapter $chapter): View
     {
+        // Allow super admins or chapter owners
+        if (!auth()->user()->isSuperAdmin() && $chapter->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $chapter->load(['images']);
         return view('chapters.edit', compact('comic', 'chapter'));
     }
 
     public function update(Request $request, Comic $comic, Chapter $chapter): RedirectResponse
     {
+        // Allow super admins or chapter owners
+        if (!auth()->user()->isSuperAdmin() && $chapter->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         //for reordering
         $request->merge([
             'order' => $request->order
@@ -159,7 +170,6 @@ class ChapterController extends Controller
 
             
             if (!empty($validated['order'])) {
-                //dd($validated['order']);
 
                 DB::transaction(function () use ($validated, $chapter) {
 
@@ -205,6 +215,11 @@ class ChapterController extends Controller
 
     public function destroy(Comic $comic, Chapter $chapter): RedirectResponse
     {
+        // Allow super admins or chapter owners
+        if (!auth()->user()->isSuperAdmin() && $chapter->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $chapter->delete();
         return redirect()->route('comics.show', $comic)->with('success', 'Chapter deleted successfully');
     }

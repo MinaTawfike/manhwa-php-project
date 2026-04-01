@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title') - Manhwa Website</title>
+    <meta name="description" content="@yield('description', 'A complete Laravel-based manhwa reading platform with chapter management and user interactions')">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="@yield('og:title', 'Manhwa Website')">
+    <meta property="og:description" content="@yield('og:description', 'A complete Laravel-based manhwa reading platform with chapter management and user interactions')">
+    <meta property="og:image" content="@yield('og:image', asset('/images/og-default.jpg'))">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="@yield('twitter:title', 'Manhwa Website')">
+    <meta property="twitter:description" content="@yield('twitter:description', 'A complete Laravel-based manhwa reading platform with chapter management and user interactions')">
+    <meta property="twitter:image" content="@yield('twitter:image', asset('/images/og-default.jpg'))">
+    
+    <title>@yield('title', 'Manhwa Website')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         * {
