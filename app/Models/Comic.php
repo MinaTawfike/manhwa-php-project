@@ -40,11 +40,13 @@ class Comic extends Model
         parent::boot();
 
         static::creating(function ($comic) {
+            // Always generate slug for new comics
             $comic->slug = static::generateUniqueSlug($comic->title);
         });
 
         static::updating(function ($comic) {
-            if ($comic->isDirty('title')) {
+            // Update slug if title changes or if slug is empty
+            if ($comic->isDirty('title') || empty($comic->slug)) {
                 $comic->slug = static::generateUniqueSlug($comic->title, $comic->id);
             }
         });
@@ -52,6 +54,11 @@ class Comic extends Model
 
     protected static function generateUniqueSlug($title, $ignoreId = null)
     {
+        // Handle empty/invalid titles
+        if (empty($title) || trim($title) === '') {
+            $title = 'comic-' . uniqid();
+        }
+        
         $slug = Str::slug($title);
         $original = $slug;
         $count = 1;
