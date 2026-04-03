@@ -199,9 +199,9 @@
 - **Issues Found**: _________________________
 
 ### Notes & Issues:
-1. ___________________________________________________________
-2. ___________________________________________________________
-3. ___________________________________________________________
+1. pages reordering not working
+2. in chapter editing page, need to display page numbers
+3. bookmark count in the user profile page is not working
 
 ---
 

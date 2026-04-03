@@ -33,7 +33,7 @@ class ComicController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'poster' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'poster' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,avif|max:2048',
             'status' => 'required|in:ongoing,completed,hiatus',
         ]);
         
@@ -70,7 +70,7 @@ class ComicController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'poster' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'poster' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,avif|max:2048',
             'status' => 'required|in:ongoing,completed,hiatus',
         ]);
 

@@ -3,8 +3,20 @@
 @section('title', $comic->title)
 
 @section('content')
-    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-bottom: 2rem;">
-        <div>
+    <style>
+        @media (max-width: 768px) {
+            .comic-header-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            .comic-header-grid .poster-container img {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+    <div class="comic-header-grid" style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div class="poster-container">
             @if($comic->poster)
                 <img src="{{ $comic->poster }}" alt="{{ $comic->title }}" style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
             @else

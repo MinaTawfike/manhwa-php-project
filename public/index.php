@@ -1,5 +1,11 @@
 <?php
 
+// Override PHP upload settings at the beginning of the request
+ini_set('upload_max_filesize', '200M');
+ini_set('post_max_size', '200M');
+ini_set('max_file_uploads', '500');
+ini_set('memory_limit', '256M');
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 

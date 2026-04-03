@@ -6,7 +6,7 @@
     <div class="reader-container">
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
             <div>
-                <h2>{{ $comic->title }}</h2>
+                <a href="{{ route('comics.show', $comic) }}"><h2>{{ $comic->title }}</h2></a>
                 <p style="color: #b0b0b0;">Chapter {{ $chapter->number }}
                     @if($chapter->name) - {{ $chapter->name }} @endif
                 </p>
