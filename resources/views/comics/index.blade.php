@@ -27,18 +27,33 @@
                         <h3 class="card-title">{{ $comic->title }}</h3>
                         <span class="badge badge-{{ $comic->status }}">{{ ucfirst($comic->status) }}</span>
                         <p class="card-text">{{ Str::limit($comic->description, 100) }}</p>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <a href="{{ route('comics.show', $comic) }}" class="btn" style="flex: 1; text-align: center; padding: 0.5rem;">View</a>
+                        @if($comic->chapters->count() > 0)
+                            <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #b0b0b0;">
+                                <strong>Latest Available:</strong> Chapter {{ $comic->chapters->last()->number }}
+                                
+                                @if($comic->chapters->last()->name)
+                                    - {{ $comic->chapters->last()->name }}
+                                @endif
+                            </p>
+                        @endif
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <a href="{{ route('comics.show', $comic) }}" class="btn" style="text-align: center; padding: 0.5rem;">View</a>
                             @auth
-                                @if(auth()->user()->isSuperAdmin())
-                                    <a href="{{ route('comics.edit', $comic) }}" class="btn btn-secondary" style="flex: 1; text-align: center; padding: 0.5rem;">Edit</a>
-                                    <form action="{{ route('comics.destroy', $comic) }}" method="POST" style="flex: 1;">
+                                @if(auth()->user())
+                                    <form action="{{ route('comics.bookmark', $comic) }}" method="POST" style="display: inline;">
                                         @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-secondary" style="width: 100%;" onclick="return confirm('Delete this comic?')">Delete</button>
+                                        <button type="submit" class="btn btn-secondary">
+                                            @if(auth()->user()->bookmarkedComics()->where('comic_id', $comic->id)->exists())
+                                                ❌ Remove
+                                            @else
+                                                🔖 Add
+                                            @endif
+                                        </button>
                                     </form>
                                 @endif
                             @endauth
+                            
+                            
                         </div>
                     </div>
                 </div>

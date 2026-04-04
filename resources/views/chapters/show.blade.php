@@ -13,6 +13,7 @@
             </div>
             
             @auth
+                @if(auth()->user()->isSuperAdmin())
                 <div style="display: flex; gap: 0.5rem;">
                     <a href="{{ route('chapters.edit', [$comic, $chapter]) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Edit</a>
                     <form action="{{ route('chapters.destroy', [$comic, $chapter]) }}" method="POST" style="display: inline;">
@@ -21,6 +22,7 @@
                         <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;" onclick="return confirm('Delete this chapter?')">Delete</button>
                     </form>
                 </div>
+                @endif
             @endauth
         </div>
 
@@ -68,11 +70,15 @@
         @endauth
 
         <div style="display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem;">
-        <a href="{{ route('comics.show', $comic) }}" class="btn btn-secondary">← Back to Comic</a>
+            <a href="{{ route('comics.show', $comic) }}" class="btn btn-secondary">← Back to Comic</a>
+        </div>
+        <!-- Comment Section -->
+        <div style="margin-top: 3rem;">
+            <x-disqus
+            :url="url()->current()"
+            :identifier="'chapter-'.$chapter->id"
+        />
+        </div>
     </div>
-
-    <x-disqus
-        :url="url()->current()"
-        :identifier="'chapter-'.$chapter->id"
-    />
+    </div>
 @endsection

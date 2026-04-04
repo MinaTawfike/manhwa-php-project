@@ -37,6 +37,7 @@ return [
     
     'disqus' => [
         'shortname' => env('DISQUS_SHORTNAME'),
+        'script_url' => env('DISQUS_SCRIPT_URL'),
     ],
 
 

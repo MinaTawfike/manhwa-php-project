@@ -107,8 +107,11 @@
         @endif
     </div>
 
-    <x-disqus
-        :url="url()->current()"
-        :identifier="'comic-'.$comic->id"
-    />
+    <!-- Comment Section -->
+    <div style="margin-top: 3rem;">
+        <x-disqus
+            :url="url()->current()"
+            :identifier="'comic-'.$comic->id"
+        />
+    </div>
 @endsection
