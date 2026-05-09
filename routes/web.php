@@ -5,8 +5,26 @@ use App\Http\Controllers\ComicController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\ProfileController;
 
+// Debug route
+Route::get('/debug', function () {
+    return [
+        'method' => request()->method(),
+        'path' => request()->path(),
+        'url' => request()->url(),
+        'routes' => collect(Route::getRoutes())->map(function ($route) {
+            return [
+                'method' => implode('|', $route->methods()),
+                'uri' => $route->uri(),
+                'name' => $route->getName(),
+            ];
+        })->take(10)->toArray()
+    ];
+});
+
 // Public routes
 Route::get('/', [ComicController::class, 'index'])->name('comics.index');
+
+// Terms and privacy
 Route::get('/terms', function () {
     return view('terms');
 })->name('terms');

@@ -6,6 +6,7 @@ use App\Models\Chapter;
 use App\Models\Comic;
 use App\Models\ChapterImage;
 use App\Models\ComicUserLastChapter;
+use App\Services\ChapterUploadService;
 
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -15,6 +16,13 @@ use Illuminate\Support\Facades\Storage;
 
 class ChapterController extends Controller
 {
+    protected ChapterUploadService $chapterUploadService;
+
+    public function __construct(ChapterUploadService $chapterUploadService)
+    {
+        $this->chapterUploadService = $chapterUploadService;
+    }
+
     public function show(Comic $comic, Chapter $chapter): View
     {
         $chapter->load('pages', 'bookmarkedBy', 'ratedBy', 'images');
@@ -55,6 +63,9 @@ class ChapterController extends Controller
         
 
         return DB::transaction(function () use ($request, $validated) {
+            // Handle images if provided - using service
+            $files = $request->file('images', []);
+            
             // Create chapter first
             $chapter = Chapter::create([
                 'name' => $validated['name'],
@@ -65,19 +76,11 @@ class ChapterController extends Controller
                 // ... add other fields
             ]);
 
-            // Handle images if provided
-            $files = $request->file('images', []);
-            $page = 1;
-
-            foreach ($files as $file) {
-                $path = $this->uploadImage($file, $chapter);
-
-                ChapterImage::create([
-                    'chapter_id' => $chapter->id,
-                    'path' => $path,
-                    'page_number' => $page++,
-                    'alt' => null,
-                ]);
+            if ($files) {
+                $this->chapterUploadService->upload(
+                    $validated['comic_id'],
+                    $files
+                );
             }
 
             return redirect()

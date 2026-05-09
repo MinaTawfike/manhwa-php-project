@@ -29,11 +29,7 @@
                         <p class="card-text">{{ Str::limit($comic->description, 100) }}</p>
                         @if($comic->chapters->count() > 0)
                             <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #b0b0b0;">
-                                <strong>Latest Available:</strong> Chapter {{ $comic->chapters->last()->number }}
-                                
-                                @if($comic->chapters->last()->name)
-                                    - {{ $comic->chapters->last()->name }}
-                                @endif
+                                <strong>Latest Available:</strong> Chapter {{ $comic->chapters->sortByDesc('number')->first()->number }}
                             </p>
                         @endif
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -67,3 +63,4 @@
         </div>
     </div>
 @endsection
+

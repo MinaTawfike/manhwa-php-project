@@ -41,6 +41,29 @@ class Comic extends Model
         return $this->hasMany(ComicUserLastChapter::class);
     }
 
+    public function latestChapter(): BelongsTo
+    {
+        return $this->belongsTo(Chapter::class, 'latest_chapter_id');
+    }
+
+    public function getLatestUpdateAttribute()
+    {
+        // Check if the latest_update attribute exists and is not null
+        if (isset($this->attributes['latest_update']) && $this->attributes['latest_update']) {
+            return $this->attributes['latest_update'];
+        }
+        
+        // If latest_update is null, get the most recent chapter's created_at
+        $latestChapterCreatedAt = $this->chapters()->max('created_at');
+        
+        // Convert string to Carbon object if it's not null
+        if ($latestChapterCreatedAt) {
+            return \Carbon\Carbon::parse($latestChapterCreatedAt);
+        }
+        
+        return null;
+    }
+
     protected static function boot()
     {
         parent::boot();
