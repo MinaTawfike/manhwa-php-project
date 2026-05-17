@@ -371,7 +371,28 @@
                             @endif
                         </a>
                         @if(auth()->user()->isSuperAdmin())
-                            <a href="{{ route('admin.users.index') }}">Admin</a>
+                            <div style="position: relative; display: inline-block;">
+                                <button onclick="toggleAdminMenu()" style="background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: inherit; padding: 0;">
+                                    Admin ▼
+                                </button>
+                                <div id="adminMenu" style="display: none; position: absolute; top: 100%; left: 0; background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 5px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 1000; min-width: 200px;">
+                                    <a href="{{ route('admin.dashboard') }}" style="display: block; padding: 0.75rem 1rem; color: #e0e0e0; text-decoration: none; border-bottom: 1px solid #3a3a3a; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
+                                        📊 Dashboard
+                                    </a>
+                                    <a href="{{ route('admin.analytics') }}" style="display: block; padding: 0.75rem 1rem; color: #e0e0e0; text-decoration: none; border-bottom: 1px solid #3a3a3a; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
+                                        📈 Analytics
+                                    </a>
+                                    <a href="{{ route('admin.users.index') }}" style="display: block; padding: 0.75rem 1rem; color: #e0e0e0; text-decoration: none; border-bottom: 1px solid #3a3a3a; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
+                                        👥 Users
+                                    </a>
+                                    <a href="{{ route('admin.content-moderation') }}" style="display: block; padding: 0.75rem 1rem; color: #e0e0e0; text-decoration: none; border-bottom: 1px solid #3a3a3a; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
+                                        🛡️ Moderation
+                                    </a>
+                                    <a href="{{ route('admin.system-health') }}" style="display: block; padding: 0.75rem 1rem; color: #e0e0e0; text-decoration: none; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
+                                        🔧 System Health
+                                    </a>
+                                </div>
+                            </div>
                         @endif
                     @endauth
                 </nav>
@@ -438,5 +459,27 @@
             <p style="margin-top: 1.5rem;">&copy; 2026 Manhwa Website. All rights reserved.</p>
         </div>
     </footer>
+
+<script>
+function toggleAdminMenu() {
+    const menu = document.getElementById('adminMenu');
+    if (menu.style.display === 'none') {
+        menu.style.display = 'block';
+    } else {
+        menu.style.display = 'none';
+    }
+}
+
+// Close admin menu when clicking outside
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('adminMenu');
+    const button = event.target.closest('button[onclick="toggleAdminMenu()"]');
+    
+    if (!button && !menu.contains(event.target)) {
+        menu.style.display = 'none';
+    }
+});
+</script>
+
 </body>
 </html>

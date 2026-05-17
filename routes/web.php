@@ -81,13 +81,27 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
     Route::get('/bookmarks', [ComicController::class, 'bookmarks'])->name('bookmarks.index');
 });
 
-// Admin user management (protected by EnsureSuperAdmin middleware alias)
-Route::middleware(['auth', 'super.admin', 'throttle:60,1'])->group(function () {
-    Route::get('/admin/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])
-        ->name('admin.users.index');
+// Admin dashboard and management (protected by EnsureSuperAdmin middleware alias)
+Route::middleware(['auth', 'super.admin', 'throttle:60,1'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])
+        ->name('dashboard');
+    
+    Route::get('/analytics', [\App\Http\Controllers\Admin\DashboardController::class, 'comicAnalytics'])
+        ->name('analytics');
+    
+    Route::get('/system-health', [\App\Http\Controllers\Admin\DashboardController::class, 'systemHealth'])
+        ->name('system-health');
+    
+    Route::get('/content-moderation', [\App\Http\Controllers\Admin\DashboardController::class, 'contentModeration'])
+        ->name('content-moderation');
 
-    Route::post('/admin/users/{user}/role', [\App\Http\Controllers\Admin\UserManagementController::class, 'update'])
-        ->name('admin.users.update');
+    // User management
+    Route::get('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])
+        ->name('users.index');
+
+    Route::post('/users/{user}/role', [\App\Http\Controllers\Admin\UserManagementController::class, 'update'])
+        ->name('users.update');
 });
 
 require __DIR__.'/auth.php';

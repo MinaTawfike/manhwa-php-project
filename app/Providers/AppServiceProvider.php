@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Http\Middleware\EnsureSuperAdmin;
+use App\Services\ViewTrackingService;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register ViewTrackingService as singleton
+        $this->app->singleton(ViewTrackingService::class, function ($app) {
+            return new ViewTrackingService();
+        });
     }
 
     /**

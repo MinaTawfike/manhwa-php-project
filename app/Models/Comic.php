@@ -13,11 +13,12 @@ use Illuminate\Support\Facades\Storage;
 
 class Comic extends Model
 {
-    protected $fillable = ['title', 'description', 'poster', 'status', 'latest_update', 'options', 'user_id'];
+    protected $fillable = ['title', 'description', 'poster', 'status', 'latest_update', 'options', 'user_id', 'views_count'];
     
     protected $casts = [
         'options' => 'array',
         'latest_update' => 'datetime',
+        'views_count' => 'integer',
     ];
 
     public function chapters(): HasMany
@@ -44,6 +45,11 @@ class Comic extends Model
     public function latestChapter(): BelongsTo
     {
         return $this->belongsTo(Chapter::class, 'latest_chapter_id');
+    }
+
+    public function viewTrackings(): HasMany
+    {
+        return $this->hasMany(ViewTracking::class);
     }
 
     public function getLatestUpdateAttribute()

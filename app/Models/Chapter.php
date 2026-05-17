@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Chapter extends Model
 {
-    protected $fillable = ['comic_id', 'name', 'number', 'rating', 'comment', 'user_id'];
+    protected $fillable = ['comic_id', 'name', 'number', 'rating', 'comment', 'user_id', 'views_count'];
 
     public function comic(): BelongsTo
     {
@@ -43,9 +43,17 @@ class Chapter extends Model
             ->withTimestamps();
     }
     
-    use HasFactory;
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'views_count' => 'integer',
+    ];
 
-    // ... existing $fillable etc.
+    public function viewTrackings(): HasMany
+    {
+        return $this->hasMany(ViewTracking::class);
+    }
 
     /**
      * Images (pages) for this chapter, ordered by page_number.
