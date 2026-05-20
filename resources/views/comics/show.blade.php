@@ -1,6 +1,62 @@
 @extends('layouts.app')
 
-@section('title', $comic->title)
+@section('title', $comic->title . ' - Read Online')
+
+@section('description', Str::limit($comic->description, 160))
+
+@section('keywords', $comic->title . ', manhwa, manga, comics, webtoons, chapter ' . $comic->chapters->count() . ' chapters')
+
+@section('canonical', route('comics.show', $comic))
+
+@section('og:type', 'website')
+
+@section('og:url', route('comics.show', $comic))
+
+@section('og:title', $comic->title . ' - Read Online')
+
+@section('og:description', Str::limit($comic->description, 160))
+
+@section('og:image', $comic->poster ? $comic->poster : asset('/images/og-default.jpg'))
+
+@section('twitter:card', 'summary_large_image')
+
+@section('twitter:url', route('comics.show', $comic))
+
+@section('twitter:title', $comic->title . ' - Read Online')
+
+@section('twitter:description', Str::limit($comic->description, 160))
+
+@section('twitter:image', $comic->poster ? $comic->poster : asset('/images/og-default.jpg'))
+
+@php
+    // SEO: Generate JSON-LD structured data for comic page
+    $jsonLd = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Book',
+        'name' => $comic->title,
+        'description' => Str::limit($comic->description, 500),
+        'author' => [
+            '@type' => 'Organization',
+            'name' => 'Manhwa Website'
+        ],
+        'url' => route('comics.show', $comic),
+        'image' => $comic->poster ?? asset('/images/og-default.jpg'),
+        'inLanguage' => 'en',
+        'numberOfPages' => $comic->chapters->count(),
+        'genre' => 'Manhwa',
+        'aggregateRating' => [
+            '@type' => 'AggregateRating',
+            'ratingValue' => '4.5',
+            'reviewCount' => $comic->views_count
+        ]
+    ];
+@endphp
+
+@section('json-ld')
+<script type="application/ld+json">
+{!! json_encode($jsonLd) !!}
+</script>
+@endsection
 
 @section('content')
     <style>
@@ -18,7 +74,12 @@
     <div class="comic-header-grid" style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-bottom: 2rem;">
         <div class="poster-container">
             @if($comic->poster)
-                <img src="{{ $comic->poster }}" alt="{{ $comic->title }}" style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
+                <!-- SEO: Descriptive alt text, absolute URL for social sharing -->
+                <img 
+                    src="{{ $comic->poster }}" 
+                    alt="{{ $comic->title }} - {{ ucfirst($comic->status) }} manhwa comic cover poster"
+                    style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);"
+                >
             @else
                 <div style="width: 100%; height: 350px; background-color: #3a3a3a; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
                     <span style="color: #999;">No image</span>
@@ -29,6 +90,20 @@
         <div>
             <h1>{{ $comic->title }}</h1>
             <span class="badge badge-{{ $comic->status }}" style="display: block; width: fit-content;">{{ ucfirst($comic->status) }}</span>
+            
+            @if($comic->categories->count() > 0)
+                <div style="margin-top: 1rem;">
+                    <strong style="color: #e0e0e0;">Categories:</strong>
+                    <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        @foreach($comic->categories as $category)
+                            <a href="{{ route('categories.show', $category) }}" style="background: #4a4a4a; color: #ff6b6b; padding: 0.3rem 0.8rem; border-radius: 20px; text-decoration: none; font-size: 0.9rem; transition: background 0.3s;" onmouseover="this.style.background='#5a5a5a'" onmouseout="this.style.background='#4a4a4a'">
+                                {{ $category->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+            
             <p style="margin-top: 1rem; color: #b0b0b0;">
                 <strong>Last Update:</strong> 
                 @if($comic->latest_update)

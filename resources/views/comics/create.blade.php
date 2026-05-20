@@ -45,6 +45,19 @@
             @enderror
         </div>
 
+        <div class="form-group">
+            <label for="categories">Categories</label>
+            <select id="categories" name="categories[]" multiple style="height: 150px;">
+                @foreach($categories ?? [] as $category)
+                    <option value="{{ $category->id }}" @if(in_array($category->id, old('categories') ?? [])) selected @endif>{{ $category->name }}</option>
+                @endforeach
+            </select>
+            <p style="color: #999; font-size: 0.8rem; margin-top: 0.5rem;">Hold Ctrl/Cmd to select multiple categories</p>
+            @error('categories')
+                <p style="color: #f44336; font-size: 0.9rem;">{{ $message }}</p>
+            @enderror
+        </div>
+
         <div style="display: flex; gap: 1rem;">
             <button type="submit" class="btn">Create Comic</button>
             <a href="{{ route('comics.index') }}" class="btn btn-secondary">Cancel</a>

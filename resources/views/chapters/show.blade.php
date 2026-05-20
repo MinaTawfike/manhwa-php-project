@@ -1,6 +1,62 @@
 @extends('layouts.app')
 
-@section('title', $comic->title . ' - Chapter ' . $chapter->number)
+@section('title', $comic->title . ' - Chapter ' . $chapter->number . ' - Read Online')
+
+@section('description', 'Read ' . $comic->title . ' Chapter ' . $chapter->number . ' online. ' . ($chapter->name ? $chapter->name . '. ' : '') . 'High quality images and fast loading.')
+
+@section('keywords', $comic->title . ', chapter ' . $chapter->number . ', manhwa, manga, comics, webtoons, read online')
+
+@section('canonical', route('chapters.show', [$comic, $chapter]))
+
+@section('og:type', 'article')
+
+@section('og:url', route('chapters.show', [$comic, $chapter]))
+
+@section('og:title', $comic->title . ' - Chapter ' . $chapter->number)
+
+@section('og:description', 'Read ' . $comic->title . ' Chapter ' . $chapter->number . ' online. ' . ($chapter->name ? $chapter->name . '. ' : '') . 'High quality images and fast loading.')
+
+@section('og:image', $comic->poster ?? asset('/images/og-default.jpg'))
+
+@section('twitter:card', 'summary_large_image')
+
+@section('twitter:url', route('chapters.show', [$comic, $chapter]))
+
+@section('twitter:title', $comic->title . ' - Chapter ' . $chapter->number)
+
+@section('twitter:description', 'Read ' . $comic->title . ' Chapter ' . $chapter->number . ' online. ' . ($chapter->name ? $chapter->name . '. ' : '') . 'High quality images and fast loading.')
+
+@section('twitter:image', $comic->poster ?? asset('/images/og-default.jpg'))
+
+@php
+    // SEO: Generate JSON-LD structured data for chapter page
+    $jsonLd = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Article',
+        'headline' => $comic->title . ' - Chapter ' . $chapter->number,
+        'description' => 'Read ' . $comic->title . ' Chapter ' . $chapter->number . ' online. ' . ($chapter->name ? $chapter->name . '. ' : ''),
+        'author' => [
+            '@type' => 'Organization',
+            'name' => 'Manhwa Website'
+        ],
+        'url' => route('chapters.show', [$comic, $chapter]),
+        'image' => $comic->poster ?? asset('/images/og-default.jpg'),
+        'datePublished' => $chapter->created_at->toIso8601String(),
+        'dateModified' => $chapter->updated_at->toIso8601String(),
+        'isPartOf' => [
+            '@type' => 'Book',
+            'name' => $comic->title,
+            'url' => route('comics.show', $comic)
+        ],
+        'position' => $chapter->number
+    ];
+@endphp
+
+@section('json-ld')
+<script type="application/ld+json">
+{!! json_encode($jsonLd) !!}
+</script>
+@endsection
 
 @section('content')
     <div class="reader-container">

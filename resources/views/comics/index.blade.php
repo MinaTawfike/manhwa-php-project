@@ -1,6 +1,32 @@
 @extends('layouts.app')
 
-@section('title', 'Comics')
+@section('title', 'Manhwa Comics - Read Online')
+
+@section('description', 'Browse and read the latest manhwa comics online. High quality images, fast loading, and regular updates.')
+
+@section('keywords', 'manhwa, manga, comics, webtoons, read online, latest chapters')
+
+@section('canonical', route('comics.index'))
+
+@section('og:type', 'website')
+
+@section('og:url', route('comics.index'))
+
+@section('og:title', 'Manhwa Comics - Read Online')
+
+@section('og:description', 'Browse and read the latest manhwa comics online. High quality images, fast loading, and regular updates.')
+
+@section('og:image', asset('/images/og-default.jpg'))
+
+@section('twitter:card', 'summary_large_image')
+
+@section('twitter:url', route('comics.index'))
+
+@section('twitter:title', 'Manhwa Comics - Read Online')
+
+@section('twitter:description', 'Browse and read the latest manhwa comics online. High quality images, fast loading, and regular updates.')
+
+@section('twitter:image', asset('/images/og-default.jpg'))
 
 @section('content')
     <div>
@@ -9,6 +35,7 @@
             @auth
                 @if(auth()->user()->isSuperAdmin())
                     <a href="{{ route('comics.create') }}" class="btn">+ Add Comic</a>
+                    <a href="{{ route('admin.categories.create') }}" class="btn">+ Add Category</a>
                 @endif
             @endauth
         </div>
@@ -17,7 +44,14 @@
             @forelse($comics as $comic)
                 <div class="card">
                     @if($comic->poster)
-                        <img src="{{ $comic->poster }}" alt="{{ $comic->title }}">
+                        <!-- SEO: Lazy loading for performance, descriptive alt text for accessibility -->
+                        <img 
+                            src="{{ $comic->poster }}" 
+                            alt="{{ $comic->title }} - {{ ucfirst($comic->status) }} manhwa comic cover"
+                            loading="lazy"
+                            width="250"
+                            height="350"
+                        >
                     @else
                         <div style="width: 100%; height: 250px; background-color: #3a3a3a; display: flex; align-items: center; justify-content: center;">
                             <span style="color: #999;">No image</span>
@@ -27,6 +61,16 @@
                         <h3 class="card-title">{{ $comic->title }}</h3>
                         <span class="badge badge-{{ $comic->status }}">{{ ucfirst($comic->status) }}</span>
                         <p class="card-text">{{ Str::limit($comic->description, 100) }}</p>
+                        @if($comic->categories->count() > 0)
+                            <div style="margin: 0.5rem 0; display: flex; flex-wrap: wrap; gap: 0.3rem;">
+                                @foreach($comic->categories->take(3) as $category)
+                                    <a href="{{ route('categories.show', $category) }}" style="color: #ff6b6b; font-size: 0.8rem; text-decoration: none; background: #3a3a3a; padding: 0.2rem 0.5rem; border-radius: 10px;">{{ $category->name }}</a>
+                                @endforeach
+                                @if($comic->categories->count() > 3)
+                                    <span style="color: #999; font-size: 0.8rem;">+{{ $comic->categories->count() - 3 }}</span>
+                                @endif
+                            </div>
+                        @endif
                         @if($comic->chapters->count() > 0)
                             <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #b0b0b0;">
                                 <strong>Latest Available:</strong> Chapter {{ $comic->chapters->sortByDesc('number')->first()->number }}

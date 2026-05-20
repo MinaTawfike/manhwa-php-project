@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ComicController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 
 // Debug route
 Route::get('/debug', function () {
@@ -21,8 +24,14 @@ Route::get('/debug', function () {
     ];
 });
 
+// SEO: XML Sitemap for Google and search engines
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
 // Public routes
 Route::get('/', [ComicController::class, 'index'])->name('comics.index');
+
+// Public category pages (SEO-friendly slug-based URLs)
+Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 
 // Terms and privacy
 Route::get('/terms', function () {
@@ -102,6 +111,16 @@ Route::middleware(['auth', 'super.admin', 'throttle:60,1'])->prefix('admin')->na
 
     Route::post('/users/{user}/role', [\App\Http\Controllers\Admin\UserManagementController::class, 'update'])
         ->name('users.update');
+
+    // Category management
+    Route::prefix('categories')->name('categories.')->group(function () {
+        Route::get('/', [AdminCategoryController::class, 'index'])->name('index');
+        Route::get('/create', [AdminCategoryController::class, 'create'])->name('create');
+        Route::post('/', [AdminCategoryController::class, 'store'])->name('store');
+        Route::get('/{category}/edit', [AdminCategoryController::class, 'edit'])->name('edit');
+        Route::put('/{category}', [AdminCategoryController::class, 'update'])->name('update');
+        Route::delete('/{category}', [AdminCategoryController::class, 'destroy'])->name('destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

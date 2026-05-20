@@ -1,2 +1,8 @@
+# SEO: Robots.txt for search engine crawling
+# Allow all crawlers to access the site
 User-agent: *
-Disallow:
+Allow: /
+
+# SEO: Reference to XML sitemap for Google and other search engines
+# Replace YOUR_DOMAIN.com with your actual domain
+Sitemap: https://YOUR_DOMAIN.com/sitemap.xml

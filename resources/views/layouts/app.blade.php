@@ -3,21 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="@yield('description', 'A complete Laravel-based manhwa reading platform with chapter management and user interactions')">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
+    <!-- SEO: Dynamic Meta Tags -->
+    <meta name="description" content="@yield('description', 'A complete Laravel-based manhwa reading platform with chapter management and user interactions')">
+    <meta name="keywords" content="@yield('keywords', 'manhwa, manga, comics, webtoons, reading platform')">
+    
+    <!-- SEO: Canonical URL to prevent duplicate content issues -->
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    
+    <!-- Open Graph / Facebook for social sharing -->
+    <meta property="og:type" content="@yield('og:type', 'website')">
+    <meta property="og:url" content="@yield('og:url', url()->current())">
     <meta property="og:title" content="@yield('og:title', 'Manhwa Website')">
     <meta property="og:description" content="@yield('og:description', 'A complete Laravel-based manhwa reading platform with chapter management and user interactions')">
     <meta property="og:image" content="@yield('og:image', asset('/images/og-default.jpg'))">
+    <meta property="og:site_name" content="Manhwa Website">
     
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="@yield('twitter:title', 'Manhwa Website')">
-    <meta property="twitter:description" content="@yield('twitter:description', 'A complete Laravel-based manhwa reading platform with chapter management and user interactions')">
-    <meta property="twitter:image" content="@yield('twitter:image', asset('/images/og-default.jpg'))">
+    <!-- Twitter Card for social sharing -->
+    <meta name="twitter:card" content="@yield('twitter:card', 'summary_large_image')">
+    <meta name="twitter:url" content="@yield('twitter:url', url()->current())">
+    <meta name="twitter:title" content="@yield('twitter:title', 'Manhwa Website')">
+    <meta name="twitter:description" content="@yield('twitter:description', 'A complete Laravel-based manhwa reading platform with chapter management and user interactions')">
+    <meta name="twitter:image" content="@yield('twitter:image', asset('/images/og-default.jpg'))">
     
+    <!-- Page Title -->
     <title>@yield('title', 'Manhwa Website')</title>
+    
+    <!-- Structured Data (JSON-LD) placeholder for schema markup -->
+    @yield('json-ld')
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         * {

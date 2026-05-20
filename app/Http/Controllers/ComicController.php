@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comic;
+use App\Models\Category;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -13,19 +14,23 @@ class ComicController extends Controller
 {
     public function index(): View
     {
-        $comics = Comic::with('chapters')->paginate(20);
+        // Eager load categories to prevent N+1 queries
+        $comics = Comic::with(['chapters', 'categories'])->paginate(20);
         return view('comics.index', compact('comics'));
     }
 
     public function show(Comic $comic): View
     {
-        $comic->load('chapters.pages');
+        // Eager load categories to prevent N+1 queries
+        $comic->load(['chapters.pages', 'categories']);
         return view('comics.show', compact('comic'));
     }
 
     public function create(): View
     {
-        return view('comics.create');
+        // Pass all categories for selection
+        $categories = Category::orderBy('name')->get();
+        return view('comics.create', compact('categories'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -35,18 +40,23 @@ class ComicController extends Controller
             'description' => 'nullable|string',
             'poster' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,avif|max:2048',
             'status' => 'required|in:ongoing,completed,hiatus',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
         ]);
         
         $validated['user_id'] = auth()->id();
         $comic = Comic::create($validated);
 
         if ($request->hasFile('poster')) {
-            
             $path = $this->uploadImage($request->file('poster'), $comic->id);
             $comic->update(['poster' => $path]);
         }
 
-        
+        // Sync categories with the comic
+        if ($request->has('categories')) {
+            $comic->categories()->sync($request->input('categories'));
+        }
+
         return redirect()->route('comics.index')->with('success', 'Comic created successfully');
     }
 
@@ -57,7 +67,11 @@ class ComicController extends Controller
             abort(403);
         }
         
-        return view('comics.edit', compact('comic'));
+        // Eager load categories and pass all categories for selection
+        $comic->load('categories');
+        $categories = Category::orderBy('name')->get();
+        
+        return view('comics.edit', compact('comic', 'categories'));
     }
 
     public function update(Request $request, Comic $comic): RedirectResponse
@@ -72,6 +86,8 @@ class ComicController extends Controller
             'description' => 'nullable|string',
             'poster' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,avif|max:2048',
             'status' => 'required|in:ongoing,completed,hiatus',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
         ]);
 
         if ($request->hasFile('poster')) {
@@ -79,6 +95,15 @@ class ComicController extends Controller
         }
 
         $comic->update($validated);
+
+        // Sync categories with the comic
+        if ($request->has('categories')) {
+            $comic->categories()->sync($request->input('categories'));
+        } else {
+            // If no categories selected, detach all
+            $comic->categories()->detach();
+        }
+
         return redirect()->route('comics.show', $comic)->with('success', 'Comic updated successfully');
     }
 

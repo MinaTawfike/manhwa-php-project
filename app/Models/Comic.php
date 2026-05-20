@@ -52,6 +52,20 @@ class Comic extends Model
         return $this->hasMany(ViewTracking::class);
     }
 
+    /**
+     * The categories that belong to this comic.
+     * 
+     * Many-to-many relationship through category_comic pivot table.
+     * Uses eager loading to prevent N+1 queries.
+     * 
+     * @return BelongsToMany
+     */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'category_comic')
+            ->withTimestamps();
+    }
+
     public function getLatestUpdateAttribute()
     {
         // Check if the latest_update attribute exists and is not null
