@@ -301,7 +301,7 @@ class ViewTrackingService
     /**
      * Get unique view count for a comic.
      * Counts unique visitors who viewed the comic itself (not chapters).
-     * 
+     *
      * @param Comic $comic
      * @return int Number of unique users who viewed this comic
      */
@@ -312,6 +312,76 @@ class ViewTrackingService
             300, // 5 minutes cache
             function () use ($comic) {
                 return ViewTracking::getUniqueViewsForComic($comic->id);
+            }
+        );
+    }
+
+    /**
+     * Get unique view counts for multiple comics in a single batch query.
+     * Prevents N+1 queries when loading unique views for many comics.
+     *
+     * @param array $comicIds Array of comic IDs to fetch unique views for
+     * @return array Keyed array: ['comic_id' => unique_count, ...]
+     */
+    public function getMultipleComicUniqueViewCounts(array $comicIds): array
+    {
+        if (empty($comicIds)) {
+            return [];
+        }
+
+        return Cache::remember(
+            'comic_unique_views_batch_' . md5(json_encode(sort($comicIds) ?? [])),
+            300, // 5 minutes cache
+            function () use ($comicIds) {
+                $results = ViewTracking::forComics()
+                    ->whereIn('comic_id', $comicIds)
+                    ->selectRaw('comic_id, COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(ip_address, user_agent)))) as unique_count')
+                    ->groupBy('comic_id')
+                    ->pluck('unique_count', 'comic_id')
+                    ->toArray();
+
+                // Ensure all comic IDs are present in result (fill missing with 0)
+                $normalized = [];
+                foreach ($comicIds as $id) {
+                    $normalized[$id] = $results[$id] ?? 0;
+                }
+
+                return $normalized;
+            }
+        );
+    }
+
+    /**
+     * Get unique view counts for multiple chapters in a single batch query.
+     * Prevents N+1 queries when loading unique views for many chapters.
+     *
+     * @param array $chapterIds Array of chapter IDs to fetch unique views for
+     * @return array Keyed array: ['chapter_id' => unique_count, ...]
+     */
+    public function getMultipleChapterUniqueViewCounts(array $chapterIds): array
+    {
+        if (empty($chapterIds)) {
+            return [];
+        }
+
+        return Cache::remember(
+            'chapter_unique_views_batch_' . md5(json_encode(sort($chapterIds) ?? [])),
+            300, // 5 minutes cache
+            function () use ($chapterIds) {
+                $results = ViewTracking::forChapters()
+                    ->whereIn('chapter_id', $chapterIds)
+                    ->selectRaw('chapter_id, COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(ip_address, user_agent)))) as unique_count')
+                    ->groupBy('chapter_id')
+                    ->pluck('unique_count', 'chapter_id')
+                    ->toArray();
+
+                // Ensure all chapter IDs are present in result (fill missing with 0)
+                $normalized = [];
+                foreach ($chapterIds as $id) {
+                    $normalized[$id] = $results[$id] ?? 0;
+                }
+
+                return $normalized;
             }
         );
     }

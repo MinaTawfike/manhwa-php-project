@@ -45,20 +45,24 @@
                 <div class="card">
                     @if($comic->poster)
                         <!-- SEO: Lazy loading for performance, descriptive alt text for accessibility -->
-                        <img 
-                            src="{{ $comic->poster }}" 
-                            alt="{{ $comic->title }} - {{ ucfirst($comic->status) }} manhwa comic cover"
-                            loading="lazy"
-                            width="250"
-                            height="350"
-                        >
+                        <a href="{{ route('comics.show', $comic) }}">
+                            <img 
+                                src="{{ $comic->poster }}" 
+                                alt="{{ $comic->title }} - {{ ucfirst($comic->status) }} manhwa comic cover"
+                                loading="lazy"
+                                width="250"
+                                height="350"
+                            >
+                        </a>
                     @else
-                        <div style="width: 100%; height: 250px; background-color: #3a3a3a; display: flex; align-items: center; justify-content: center;">
-                            <span style="color: #999;">No image</span>
-                        </div>
+                        <a href="{{ route('comics.show', $comic) }}">
+                            <div style="width: 100%; height: 250px; background-color: #3a3a3a; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: #999;">No image</span>
+                            </div>
+                        </a>
                     @endif
                     <div class="card-body">
-                        <h3 class="card-title">{{ $comic->title }}</h3>
+                        <a href="{{ route('comics.show', $comic) }}"><h3 class="card-title">{{ $comic->title }}</h3></a>
                         <span class="badge badge-{{ $comic->status }}">{{ ucfirst($comic->status) }}</span>
                         <p class="card-text">{{ Str::limit($comic->description, 100) }}</p>
                         @if($comic->categories->count() > 0)
