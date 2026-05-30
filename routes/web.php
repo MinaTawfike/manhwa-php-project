@@ -1,12 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ComicController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\TrendController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChapterController;
+use App\Http\Controllers\ComicController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use Illuminate\Support\Facades\Route;
 
 // Debug route
 Route::get('/debug', function () {
@@ -20,7 +21,7 @@ Route::get('/debug', function () {
                 'uri' => $route->uri(),
                 'name' => $route->getName(),
             ];
-        })->take(10)->toArray()
+        })->take(10)->toArray(),
     ];
 });
 
@@ -95,13 +96,16 @@ Route::middleware(['auth', 'super.admin', 'throttle:60,1'])->prefix('admin')->na
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])
         ->name('dashboard');
-    
+
     Route::get('/analytics', [\App\Http\Controllers\Admin\DashboardController::class, 'comicAnalytics'])
         ->name('analytics');
-    
+
+    Route::get('/trends', [TrendController::class, 'index'])
+        ->name('trends');
+
     Route::get('/system-health', [\App\Http\Controllers\Admin\DashboardController::class, 'systemHealth'])
         ->name('system-health');
-    
+
     Route::get('/content-moderation', [\App\Http\Controllers\Admin\DashboardController::class, 'contentModeration'])
         ->name('content-moderation');
 
