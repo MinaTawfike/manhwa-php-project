@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\PaginationCache;
 use App\Http\Controllers\Controller;
-use App\Models\Comic;
 use App\Models\Chapter;
+use App\Models\Comic;
 use App\Models\User;
 use App\Services\ViewTrackingService;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\App;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
@@ -30,7 +31,7 @@ class DashboardController extends Controller
         // Cache overview statistics for better performance
         $stats = Cache::remember('admin.dashboard.stats', 300, function () {
             $siteStats = $this->viewTrackingService->getSiteViewStats();
-            
+
             return [
                 'total_comics' => Comic::count(),
                 'total_chapters' => Chapter::count(),
@@ -80,11 +81,30 @@ class DashboardController extends Controller
 
         $filter = $request->get('filter', 'most_viewed');
         $comicAnalytics = $this->getComicAnalytics($filter, true);
+        $analyticsSummary = $this->getAnalyticsSummary($filter);
 
-        return view('admin.dashboard.analytics', compact('comicAnalytics', 'filter'));
+        return view('admin.dashboard.analytics', compact('comicAnalytics', 'analyticsSummary', 'filter'));
     }
 
     private function getComicAnalytics(string $filter, bool $detailed = false)
+    {
+        $query = $this->buildComicAnalyticsQuery($filter);
+
+        if ($detailed) {
+            $page = request()->integer('page', 1);
+            $comics = PaginationCache::remember('admin.analytics.comics', $filter, $page, 300, function () use ($query) {
+                return $query->paginate(10);
+            });
+        } else {
+            $comics = $query->limit(10)->get();
+        }
+
+        $this->attachUniqueViewCounts($detailed ? $comics->getCollection() : $comics);
+
+        return $comics;
+    }
+
+    private function buildComicAnalyticsQuery(string $filter)
     {
         $query = Comic::with([
             'chapters' => function ($query) {
@@ -95,8 +115,8 @@ class DashboardController extends Controller
             },
             'user' => function ($query) {
                 $query->select('id', 'name');
-            }
-        ]);
+            },
+        ])->withCount(['chapters', 'bookmarkedBy']);
 
         // Apply filtering and ordering based on real view data
         switch ($filter) {
@@ -116,23 +136,37 @@ class DashboardController extends Controller
                 $query->orderByDesc('views_count');
         }
 
-        if ($detailed) {
-            $comics = $query->paginate(10);
-        } else {
-            $comics = $query->limit(10)->get();
-        }
+        return $query;
+    }
 
-        // Pre-load unique view counts to prevent N+1 queries in the view
+    private function attachUniqueViewCounts(Collection $comics): void
+    {
+        $comicIds = $comics->pluck('id')->all();
+        $chapterIds = $comics->flatMap(fn ($comic) => $comic->chapters->pluck('id'))->all();
+
+        $comicUniqueViews = $this->viewTrackingService->getMultipleComicUniqueViewCounts($comicIds);
+        $chapterUniqueViews = $this->viewTrackingService->getMultipleChapterUniqueViewCounts($chapterIds);
+
         foreach ($comics as $comic) {
-            $comic->unique_views_count = $this->viewTrackingService->getComicUniqueViewCount($comic);
-            
-            // Pre-load unique view counts for each chapter
+            $comic->unique_views_count = $comicUniqueViews[$comic->id] ?? 0;
+
             foreach ($comic->chapters as $chapter) {
-                $chapter->unique_views_count = $this->viewTrackingService->getChapterUniqueViewCount($chapter);
+                $chapter->unique_views_count = $chapterUniqueViews[$chapter->id] ?? 0;
             }
         }
+    }
 
-        return $comics;
+    private function getAnalyticsSummary(string $filter): array
+    {
+        return PaginationCache::rememberTotals('admin.analytics.summary', 'all', 300, function () {
+            return [
+                'total_comics' => Comic::count(),
+                'total_chapters' => Chapter::count(),
+                'total_bookmarks' => DB::table('comic_user_bookmarks')->count(),
+                'unique_comic_views' => $this->viewTrackingService->getUniqueComicViewsTotal(),
+                'total_views' => Comic::sum('views_count') + Chapter::sum('views_count'),
+            ];
+        });
     }
 
     private function getStorageUsage(): array
@@ -144,13 +178,13 @@ class DashboardController extends Controller
                 $fileCount = 0;
 
                 $comicsPath = 'comics';
-                
+
                 // Use a simple count instead of iterating all files to avoid timeout
                 if (Storage::disk('r2')->exists($comicsPath)) {
                     try {
                         $files = Storage::disk('r2')->files($comicsPath);
                         $fileCount = count($files);
-                        
+
                         // Only calculate size for first 100 files to prevent timeout
                         $limit = min(100, count($files));
                         for ($i = 0; $i < $limit; $i++) {
@@ -161,7 +195,7 @@ class DashboardController extends Controller
                                 continue;
                             }
                         }
-                        
+
                         // Estimate total size if we have more files
                         if ($fileCount > 100) {
                             $avgSize = $totalSize / $limit;
@@ -191,13 +225,13 @@ class DashboardController extends Controller
 
     private function formatBytes($bytes, $precision = 2): string
     {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB');
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
 
-        return round($bytes, $precision) . ' ' . $units[$i];
+        return round($bytes, $precision).' '.$units[$i];
     }
 
     public function contentModeration(): View
@@ -252,6 +286,7 @@ class DashboardController extends Controller
         try {
             Storage::disk('r2')->put('health-check.txt', 'test');
             Storage::disk('r2')->delete('health-check.txt');
+
             return ['status' => 'healthy', 'message' => 'Storage is accessible'];
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
@@ -262,6 +297,7 @@ class DashboardController extends Controller
     {
         try {
             DB::select('SELECT 1');
+
             return ['status' => 'healthy', 'message' => 'Database connection is working'];
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
@@ -270,7 +306,7 @@ class DashboardController extends Controller
 
     protected function authorizeAccess()
     {
-        if (!auth()->check() || !auth()->user()->isSuperAdmin()) {
+        if (! auth()->check() || ! auth()->user()->isSuperAdmin()) {
             abort(403, 'Unauthorized access');
         }
     }

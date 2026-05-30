@@ -396,6 +396,9 @@
                                     <a href="{{ route('admin.analytics') }}" style="display: block; padding: 0.75rem 1rem; color: #e0e0e0; text-decoration: none; border-bottom: 1px solid #3a3a3a; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
                                         📈 Analytics
                                     </a>
+                                    <a href="{{ route('admin.trends') }}" style="display: block; padding: 0.75rem 1rem; color: #e0e0e0; text-decoration: none; border-bottom: 1px solid #3a3a3a; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
+                                        📉 Trends
+                                    </a>
                                     <a href="{{ route('admin.users.index') }}" style="display: block; padding: 0.75rem 1rem; color: #e0e0e0; text-decoration: none; border-bottom: 1px solid #3a3a3a; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
                                         👥 Users
                                     </a>

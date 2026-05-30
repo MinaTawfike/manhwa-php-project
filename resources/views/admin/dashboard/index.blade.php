@@ -8,6 +8,7 @@
         <h1>🎌 Admin Dashboard</h1>
         <div style="display: flex; gap: 1rem; align-items: center;">
             <a href="{{ route('admin.analytics') }}" class="btn btn-secondary">📊 Analytics</a>
+            <a href="{{ route('admin.trends') }}" class="btn btn-secondary">📈 Trends</a>
             <a href="{{ route('admin.system-health') }}" class="btn btn-secondary">🔧 System Health</a>
         </div>
     </div>
@@ -255,7 +256,10 @@
     <div class="analytics-preview" style="margin-top: 3rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <h2>📊 Comic Analytics Preview</h2>
-            <a href="{{ route('admin.analytics') }}" class="btn btn-secondary">View Full Analytics</a>
+            <div style="display: flex; gap: 1rem;">
+                <a href="{{ route('admin.trends') }}" class="btn btn-secondary">View Trends</a>
+                <a href="{{ route('admin.analytics') }}" class="btn btn-secondary">View Full Analytics</a>
+            </div>
         </div>
 
         <!-- Filter Tabs -->

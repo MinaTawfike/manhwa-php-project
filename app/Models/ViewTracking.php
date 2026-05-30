@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ViewTracking extends Model
 {
@@ -101,35 +101,45 @@ class ViewTracking extends Model
      */
     public function scopeUniqueViews($query)
     {
-        return $query->selectRaw('comic_id, COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(ip_address, user_agent)))) as unique_views')
+        $driver = $query->getConnection()->getDriverName();
+        $uniqueVisitorSql = $driver === 'sqlite'
+            ? "CASE WHEN user_id IS NOT NULL THEN 'user:' || user_id ELSE 'guest:' || COALESCE(ip_address, '') || ':' || COALESCE(user_agent, '') END"
+            : "CASE WHEN user_id IS NOT NULL THEN CONCAT('user:', user_id) ELSE CONCAT('guest:', COALESCE(ip_address, ''), ':', COALESCE(user_agent, '')) END";
+
+        return $query->selectRaw("comic_id, COUNT(DISTINCT {$uniqueVisitorSql}) as unique_views")
             ->groupBy('comic_id');
     }
 
     /**
      * Get unique view count for a specific comic.
      * Counts unique visitors (logged-in users by user_id, guests by IP + user agent).
-     * 
+     *
      * Logic:
      * - For logged-in users: Uses CAST(user_id AS CHAR) for reliable identification
      * - For guest users: Uses MD5(CONCAT(ip_address, user_agent)) for fingerprinting
      * - COALESCE ensures one identifier per visitor
      * - COUNT(DISTINCT ...) ensures each visitor counts once per comic
-     * 
-     * @param int $comicId The ID of the comic
+     *
+     * @param  int  $comicId  The ID of the comic
      * @return int Number of unique visitors who viewed this comic
      */
     public static function getUniqueViewsForComic(int $comicId): int
     {
+        $driver = static::query()->getConnection()->getDriverName();
+        $uniqueVisitorSql = $driver === 'sqlite'
+            ? "CASE WHEN user_id IS NOT NULL THEN 'user:' || user_id ELSE 'guest:' || COALESCE(ip_address, '') || ':' || COALESCE(user_agent, '') END"
+            : "CASE WHEN user_id IS NOT NULL THEN CONCAT('user:', user_id) ELSE CONCAT('guest:', COALESCE(ip_address, ''), ':', COALESCE(user_agent, '')) END";
+
         return static::forComics()
             ->where('comic_id', $comicId)
-            ->selectRaw('COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(ip_address, user_agent)))) as unique_count')
+            ->selectRaw("COUNT(DISTINCT {$uniqueVisitorSql}) as unique_count")
             ->value('unique_count') ?? 0;
     }
 
     /**
      * Get unique view count for a specific chapter.
      * Counts unique visitors (logged-in users by user_id, guests by IP + user agent).
-     * 
+     *
      * Logic:
      * - For logged-in users: Uses CAST(user_id AS CHAR) for reliable identification
      * - For guest users: Uses MD5(CONCAT(ip_address, user_agent)) for fingerprinting
@@ -137,15 +147,20 @@ class ViewTracking extends Model
      * - COUNT(DISTINCT ...) ensures each visitor counts once per chapter
      * - Filtered by chapter_id to count only views of THIS SPECIFIC chapter
      * - Different chapters count separately even from the same visitor
-     * 
-     * @param int $chapterId The ID of the chapter
+     *
+     * @param  int  $chapterId  The ID of the chapter
      * @return int Number of unique visitors who viewed this specific chapter
      */
     public static function getUniqueViewsForChapter(int $chapterId): int
     {
+        $driver = static::query()->getConnection()->getDriverName();
+        $uniqueVisitorSql = $driver === 'sqlite'
+            ? "CASE WHEN user_id IS NOT NULL THEN 'user:' || user_id ELSE 'guest:' || COALESCE(ip_address, '') || ':' || COALESCE(user_agent, '') END"
+            : "CASE WHEN user_id IS NOT NULL THEN CONCAT('user:', user_id) ELSE CONCAT('guest:', COALESCE(ip_address, ''), ':', COALESCE(user_agent, '')) END";
+
         return static::forChapters()
             ->where('chapter_id', $chapterId)
-            ->selectRaw('COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(ip_address, user_agent)))) as unique_count')
+            ->selectRaw("COUNT(DISTINCT {$uniqueVisitorSql}) as unique_count")
             ->value('unique_count') ?? 0;
     }
 }
