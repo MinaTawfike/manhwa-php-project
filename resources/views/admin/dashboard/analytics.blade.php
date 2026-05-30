@@ -8,6 +8,7 @@
         <h1>📊 Comic Analytics</h1>
         <div style="display: flex; gap: 1rem; align-items: center;">
             <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+            <a href="{{ route('admin.trends') }}" class="btn btn-secondary">📈 Trends</a>
             <a href="{{ route('admin.system-health') }}" class="btn btn-secondary">🔧 System Health</a>
         </div>
     </div>
@@ -41,21 +42,21 @@
         <div class="card" style="background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);">
             <div class="card-body" style="text-align: center;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
-                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ $comicAnalytics->total() }}</p>
+                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ $analyticsSummary['total_comics'] }}</p>
                 <p style="color: #b0b0b0; margin: 0;">Total Comics</p>
             </div>
         </div>
         <div class="card" style="background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);">
             <div class="card-body" style="text-align: center;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">📖</div>
-                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ $comicAnalytics->getCollection()->sum(fn($comic) => $comic->chapters->count()) }}</p>
+                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ $analyticsSummary['total_chapters'] }}</p>
                 <p style="color: #b0b0b0; margin: 0;">Total Chapters</p>
             </div>
         </div>
         <div class="card" style="background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);">
             <div class="card-body" style="text-align: center;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔖</div>
-                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ $comicAnalytics->getCollection()->sum(fn($comic) => $comic->bookmarkedBy->count()) }}</p>
+                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ $analyticsSummary['total_bookmarks'] }}</p>
                 <p style="color: #b0b0b0; margin: 0;">Total Bookmarks</p>
             </div>
         </div>
@@ -63,14 +64,14 @@
         <div class="card" style="background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);">
             <div class="card-body" style="text-align: center;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
-                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ number_format($comicAnalytics->getCollection()->sum(fn($comic) => app(\App\Services\ViewTrackingService::class)->getComicUniqueViewCount($comic))) }}</p>
+                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ number_format($analyticsSummary['unique_comic_views']) }}</p>
                 <p style="color: #b0b0b0; margin: 0;">Unique Comic Views</p>
             </div>
         </div>
         <div class="card" style="background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);">
             <div class="card-body" style="text-align: center;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">�️</div>
-                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ number_format($comicAnalytics->getCollection()->sum(fn($comic) => $comic->chapters->sum('views_count')) + $comicAnalytics->getCollection()->sum('views_count')) }}</p>
+                <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ number_format($analyticsSummary['total_views']) }}</p>
                 <p style="color: #b0b0b0; margin: 0;">Total Views</p>
             </div>
         </div>
