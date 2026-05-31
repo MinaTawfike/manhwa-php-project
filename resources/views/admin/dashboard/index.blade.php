@@ -55,10 +55,21 @@
             <div class="card-body">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div>
-                        <h3 style="color: #ff6b6b; margin-bottom: 0.5rem;">�️ Comic Views</h3>
+                        <h3 style="color: #ff6b6b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <svg class="admin-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:1.3rem; height:1.3rem;">
+                                <path d="M12 5C7 5 2.73 8.11 1 12C2.73 15.89 7 19 12 19C17 19 21.27 15.89 23 12C21.27 8.11 17 5 12 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Comic Views
+                        </h3>
                         <p style="font-size: 2rem; font-weight: bold; margin: 0;">{{ number_format($stats['total_comic_views']) }}</p>
                     </div>
-                    <div style="font-size: 3rem; opacity: 0.3;">👁️</div>
+                    <div style="opacity: 0.3;">
+                        <svg class="admin-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:3rem; height:3rem;">
+                            <path d="M12 5C7 5 2.73 8.11 1 12C2.73 15.89 7 19 12 19C17 19 21.27 15.89 23 12C21.27 8.11 17 5 12 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>
@@ -127,11 +138,24 @@
             <div class="card-body">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div>
-                        <h3 style="color: #ff6b6b; margin-bottom: 0.5rem;">�� Storage Usage</h3>
+                        <h3 style="color: #ff6b6b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <svg class="admin-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:1.3rem; height:1.3rem;">
+                                <rect x="3" y="7" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                                <path d="M7 11H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                <path d="M7 15H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            </svg>
+                            Storage Usage
+                        </h3>
                         <p style="font-size: 1.5rem; font-weight: bold; margin: 0;">{{ $stats['storage_usage']['total_size'] }}</p>
                         <p style="font-size: 0.9rem; color: #b0b0b0; margin: 0;">{{ $stats['storage_usage']['file_count'] }} files</p>
                     </div>
-                    <div style="font-size: 3rem; opacity: 0.3;">💾</div>
+                    <div style="opacity: 0.3;">
+                        <svg class="admin-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:3rem; height:3rem;">
+                            <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M3 10H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M12 14C13.6569 14 15 12.6569 15 11C15 9.34315 13.6569 8 12 8C10.3431 8 9 9.34315 9 11C9 12.6569 10.3431 14 12 14Z" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>

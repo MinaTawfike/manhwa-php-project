@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Chapter extends Model
 {
-    protected $fillable = ['comic_id', 'name', 'number', 'rating', 'comment', 'user_id', 'views_count'];
+    protected $fillable = ['comic_id', 'name', 'number', 'rating', 'comment', 'user_id'];
 
     public function comic(): BelongsTo
     {

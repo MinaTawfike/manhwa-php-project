@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SyncViewTrends;
 use App\Models\ViewTracking;
 use App\Models\ViewTrend;
 use Carbon\CarbonPeriod;
@@ -13,46 +14,77 @@ class TrendService
 {
     public function __construct(private ViewTrackingService $viewTrackingService) {}
 
-    public function getSevenDayTrends(): array
+    public function getTrendsForRange(int $days): array
     {
-        return Cache::remember('admin.trends.seven_day', 300, function () {
-            $start = today()->subDays(6);
-            $end = today();
+        $start = today()->subDays($days - 1);
+        $end = today();
 
-            $this->syncRange($start, $end);
+        return $this->getTrendsForDates($start, $end);
+    }
 
-            $trends = ViewTrend::whereBetween('date', [$start->toDateString(), $end->toDateString()])
-                ->orderBy('date')
-                ->get()
-                ->keyBy(fn (ViewTrend $trend) => $trend->date->toDateString());
+    public function getTrendsForDates(Carbon $start, Carbon $end): array
+    {
+        $cacheKey = $this->cacheKey($start, $end);
 
-            $labels = [];
-            $totalViews = [];
-            $uniqueVisitors = [];
-            $bookmarksAdded = [];
+        return Cache::remember($cacheKey, 300, function () use ($start, $end) {
+            $this->dispatchSyncJobIfNeeded($start, $end);
 
-            foreach (CarbonPeriod::create($start, $end) as $date) {
-                $dateKey = $date->toDateString();
-                $trend = $trends->get($dateKey);
-
-                $labels[] = $date->format('M j');
-                $totalViews[] = $trend?->total_views ?? 0;
-                $uniqueVisitors[] = $trend?->unique_visitors ?? 0;
-                $bookmarksAdded[] = $trend?->bookmarks_added ?? 0;
-            }
-
-            return [
-                'labels' => $labels,
-                'datasets' => [
-                    'total_views' => $totalViews,
-                    'unique_visitors' => $uniqueVisitors,
-                    'bookmarks_added' => $bookmarksAdded,
-                ],
-            ];
+            return $this->buildTrendPayload($start, $end);
         });
     }
 
-    private function syncRange(Carbon $start, Carbon $end): void
+    private function cacheKey(Carbon $start, Carbon $end): string
+    {
+        return sprintf('admin.trends.%s.%s', $start->toDateString(), $end->toDateString());
+    }
+
+    private function dispatchSyncJobIfNeeded(Carbon $start, Carbon $end): void
+    {
+        $existingDates = ViewTrend::whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->pluck('date')
+            ->map(fn ($date) => Carbon::parse($date)->toDateString())
+            ->all();
+
+        $expectedCount = CarbonPeriod::create($start, $end)->count();
+
+        if (count($existingDates) < $expectedCount) {
+            SyncViewTrends::dispatch($start->toDateString(), $end->toDateString());
+        }
+    }
+
+    private function buildTrendPayload(Carbon $start, Carbon $end): array
+    {
+        $trends = ViewTrend::whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->orderBy('date')
+            ->get()
+            ->keyBy(fn (ViewTrend $trend) => $trend->date->toDateString());
+
+        $labels = [];
+        $totalViews = [];
+        $uniqueVisitors = [];
+        $bookmarksAdded = [];
+
+        foreach (CarbonPeriod::create($start, $end) as $date) {
+            $dateKey = $date->toDateString();
+            $trend = $trends->get($dateKey);
+
+            $labels[] = $date->format('M j');
+            $totalViews[] = $trend?->total_views ?? 0;
+            $uniqueVisitors[] = $trend?->unique_visitors ?? 0;
+            $bookmarksAdded[] = $trend?->bookmarks_added ?? 0;
+        }
+
+        return [
+            'labels' => $labels,
+            'datasets' => [
+                'total_views' => $totalViews,
+                'unique_visitors' => $uniqueVisitors,
+                'bookmarks_added' => $bookmarksAdded,
+            ],
+        ];
+    }
+
+    public function syncRange(Carbon $start, Carbon $end): void
     {
         $existingDates = ViewTrend::whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->pluck('date')

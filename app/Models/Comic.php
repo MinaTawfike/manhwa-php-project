@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Comic extends Model
 {
-    protected $fillable = ['title', 'description', 'poster', 'status', 'latest_update', 'options', 'user_id', 'views_count'];
+    protected $fillable = ['title', 'description', 'poster', 'status', 'latest_update', 'options', 'user_id'];
     
     protected $casts = [
         'options' => 'array',

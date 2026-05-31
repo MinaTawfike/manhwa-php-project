@@ -128,6 +128,18 @@ CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 ```
 
+### Trusted Proxies
+
+If your app runs behind a proxy (Cloudflare, load balancer), set the `TRUSTED_PROXIES` environment variable to a comma-separated list of trusted proxy IPs or CIDRs. Use `*` to trust all proxies only if you understand the security implications.
+
+Example:
+
+```env
+TRUSTED_PROXIES=203.0.113.1,198.51.100.0/24
+```
+
+This ensures `Request::ip()` and forwarded headers are interpreted correctly by the application.
+
 ---
 
 ## 🚀 Production Deployment

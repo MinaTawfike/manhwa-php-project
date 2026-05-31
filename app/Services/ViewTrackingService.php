@@ -78,7 +78,7 @@ class ViewTrackingService
         Cache::put($cacheKey, true, self::COOLDOWN_SECONDS);
 
         // Track the view in database (async for performance)
-        $this->createViewTrackingRecord($type, $id);
+        $this->createViewTrackingRecord($type, $id, $model);
 
         // Update view count (atomic operation)
         $this->incrementViewCount($model);
@@ -136,7 +136,7 @@ class ViewTrackingService
      * - User agent for analytics
      * - When it was viewed
      */
-    private function createViewTrackingRecord(string $type, int $id): void
+    private function createViewTrackingRecord(string $type, int $id, $model = null): void
     {
         $data = [
             'user_id' => auth()->id(),
@@ -150,7 +150,11 @@ class ViewTrackingService
         if ($type === 'comic') {
             $data['comic_id'] = $id;
         } else {
+            // chapter view: store chapter_id and, if available, the parent comic_id
             $data['chapter_id'] = $id;
+            if ($model && isset($model->comic_id)) {
+                $data['comic_id'] = $model->comic_id;
+            }
         }
 
         // Use queue for better performance if available
@@ -276,8 +280,8 @@ class ViewTrackingService
                 'total_chapter_views' => Chapter::sum('views_count'),
                 'total_views' => Comic::sum('views_count') + Chapter::sum('views_count'),
                 'unique_visitors_today' => ViewTracking::whereDate('viewed_at', today())
-                    ->distinct('ip_address')
-                    ->count(),
+                    ->selectRaw("COUNT(DISTINCT ip_address) as unique_count")
+                    ->value('unique_count') ?? 0,
                 'unique_comic_views' => ViewTracking::forComics()
                     ->selectRaw("COUNT(DISTINCT {$uniqueVisitorSql}) as unique_count")
                     ->value('unique_count') ?? 0,
@@ -286,62 +290,6 @@ class ViewTrackingService
                     ->value('unique_count') ?? 0,
             ];
         });
-    }
-
-    public function getMultipleComicUniqueViewCounts(array $comicIds): array
-    {
-        $comicIds = $this->normalizeIds($comicIds);
-
-        if ($comicIds === []) {
-            return [];
-        }
-
-        return Cache::remember(
-            'comic_unique_views_batch_'.md5(implode(',', $comicIds)),
-            300,
-            function () use ($comicIds) {
-                $uniqueVisitorSql = $this->uniqueVisitorSql();
-
-                $counts = ViewTracking::forComics()
-                    ->whereIn('comic_id', $comicIds)
-                    ->select('comic_id')
-                    ->selectRaw("COUNT(DISTINCT {$uniqueVisitorSql}) as unique_count")
-                    ->groupBy('comic_id')
-                    ->pluck('unique_count', 'comic_id')
-                    ->map(fn ($count) => (int) $count)
-                    ->all();
-
-                return array_replace(array_fill_keys($comicIds, 0), $counts);
-            }
-        );
-    }
-
-    public function getMultipleChapterUniqueViewCounts(array $chapterIds): array
-    {
-        $chapterIds = $this->normalizeIds($chapterIds);
-
-        if ($chapterIds === []) {
-            return [];
-        }
-
-        return Cache::remember(
-            'chapter_unique_views_batch_'.md5(implode(',', $chapterIds)),
-            300,
-            function () use ($chapterIds) {
-                $uniqueVisitorSql = $this->uniqueVisitorSql();
-
-                $counts = ViewTracking::forChapters()
-                    ->whereIn('chapter_id', $chapterIds)
-                    ->select('chapter_id')
-                    ->selectRaw("COUNT(DISTINCT {$uniqueVisitorSql}) as unique_count")
-                    ->groupBy('chapter_id')
-                    ->pluck('unique_count', 'chapter_id')
-                    ->map(fn ($count) => (int) $count)
-                    ->all();
-
-                return array_replace(array_fill_keys($chapterIds, 0), $counts);
-            }
-        );
     }
 
     public function getUniqueComicViewsTotal(): int
@@ -389,22 +337,23 @@ class ViewTrackingService
         if (empty($comicIds)) {
             return [];
         }
+        $ids = $this->normalizeIds($comicIds);
 
         return Cache::remember(
-            'comic_unique_views_batch_' . md5(json_encode(sort($comicIds) ?? [])),
+            'comic_unique_views_batch_' . md5(json_encode($ids)),
             300, // 5 minutes cache
-            function () use ($comicIds) {
+            function () use ($ids) {
                 $results = ViewTracking::forComics()
-                    ->whereIn('comic_id', $comicIds)
-                    ->selectRaw('comic_id, COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(ip_address, user_agent)))) as unique_count')
+                    ->whereIn('comic_id', $ids)
+                    ->selectRaw('comic_id, COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(COALESCE(ip_address, \'\'), COALESCE(user_agent, \'\'))))) as unique_count')
                     ->groupBy('comic_id')
                     ->pluck('unique_count', 'comic_id')
                     ->toArray();
 
                 // Ensure all comic IDs are present in result (fill missing with 0)
                 $normalized = [];
-                foreach ($comicIds as $id) {
-                    $normalized[$id] = $results[$id] ?? 0;
+                foreach ($ids as $id) {
+                    $normalized[$id] = isset($results[$id]) ? (int)$results[$id] : 0;
                 }
 
                 return $normalized;
@@ -424,22 +373,23 @@ class ViewTrackingService
         if (empty($chapterIds)) {
             return [];
         }
+        $ids = $this->normalizeIds($chapterIds);
 
         return Cache::remember(
-            'chapter_unique_views_batch_' . md5(json_encode(sort($chapterIds) ?? [])),
+            'chapter_unique_views_batch_' . md5(json_encode($ids)),
             300, // 5 minutes cache
-            function () use ($chapterIds) {
+            function () use ($ids) {
                 $results = ViewTracking::forChapters()
-                    ->whereIn('chapter_id', $chapterIds)
-                    ->selectRaw('chapter_id, COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(ip_address, user_agent)))) as unique_count')
+                    ->whereIn('chapter_id', $ids)
+                    ->selectRaw('chapter_id, COUNT(DISTINCT COALESCE(CAST(user_id AS CHAR), MD5(CONCAT(COALESCE(ip_address, \'\'), COALESCE(user_agent, \'\'))))) as unique_count')
                     ->groupBy('chapter_id')
                     ->pluck('unique_count', 'chapter_id')
                     ->toArray();
 
                 // Ensure all chapter IDs are present in result (fill missing with 0)
                 $normalized = [];
-                foreach ($chapterIds as $id) {
-                    $normalized[$id] = $results[$id] ?? 0;
+                foreach ($ids as $id) {
+                    $normalized[$id] = isset($results[$id]) ? (int)$results[$id] : 0;
                 }
 
                 return $normalized;
@@ -475,10 +425,12 @@ class ViewTrackingService
             "comic_unique_chapter_views_total_{$comic->id}",
             300, // 5 minutes cache
             function () use ($comic) {
-                return ViewTracking::forChapters()
+                $uniqueVisitorSql = $this->uniqueVisitorSql();
+
+                return (int) (ViewTracking::forChapters()
                     ->where('comic_id', $comic->id)
-                    ->distinct()
-                    ->count();
+                    ->selectRaw("COUNT(DISTINCT {$uniqueVisitorSql}) as unique_count")
+                    ->value('unique_count') ?? 0);
             }
         );
     }

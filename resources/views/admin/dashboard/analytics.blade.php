@@ -70,7 +70,14 @@
         </div>
         <div class="card" style="background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);">
             <div class="card-body" style="text-align: center;">
-                <div style="font-size: 2rem; margin-bottom: 0.5rem;">�️</div>
+                <div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; opacity: 0.3;">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:2rem; height:2rem;">
+                        <path d="M3 12H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M3 6H7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M3 18H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M10 8L14 12L10 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
                 <p style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin: 0;">{{ number_format($analyticsSummary['total_views']) }}</p>
                 <p style="color: #b0b0b0; margin: 0;">Total Views</p>
             </div>
